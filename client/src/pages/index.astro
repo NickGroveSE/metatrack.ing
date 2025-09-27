@@ -1,0 +1,108 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Counter from '../components/Counter.vue';
+
+// This runs on the server at build time
+const welcomeMessage = "Welcome to Astro + Vue!";
+const buildTime = new Date().toISOString();
+---
+
+<Layout title="Astro + Vue Hello World">
+  <main>
+    <div class="hero">
+      <h1>{welcomeMessage}</h1>
+      <p class="subtitle">
+        This page was built at: <code>{buildTime}</code>
+      </p>
+      <div class="features">
+        <div class="feature">
+          <h3>🚀 Astro</h3>
+          <p>Static site generation with islands architecture</p>
+        </div>
+        <div class="feature">
+          <h3>💚 Vue.js</h3>
+          <p>Reactive components for interactivity</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- This demonstrates Astro's island architecture -->
+    <!-- The Counter will be hydrated on the client -->
+    <Counter client:load />
+    
+    <!-- This shows different hydration strategies -->
+    <div class="info-section">
+      <h2>Astro's Island Architecture Demo</h2>
+      <p>The counter above uses <code>client:load</code> - it's interactive immediately.</p>
+      
+      <!-- This counter will only hydrate when visible -->
+      <div style="margin-top: 2rem;">
+        <h3>Lazy-loaded Counter (scroll to activate):</h3>
+        <Counter client:visible />
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .hero {
+    text-align: center;
+    color: white;
+    margin-bottom: 3rem;
+  }
+  
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(45deg, #ffd700, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .subtitle {
+    font-size: 1.2rem;
+    opacity: 0.8;
+    margin-bottom: 2rem;
+  }
+  
+  code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+  }
+  
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+  }
+  
+  .feature {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 1.5rem;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .info-section {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 2rem;
+    border-radius: 12px;
+    margin-top: 3rem;
+    color: #333;
+  }
+  
+  .info-section h2 {
+    color: #2a5298;
+    margin-bottom: 1rem;
+  }
+</style>
