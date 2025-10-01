@@ -4,12 +4,23 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 func main() {
-	res, err := http.Get("https://www.mtggoldfish.com/metagame/standard#paper")
+
+	type Hero struct {
+		Name     string
+		PickRate float32
+		WinRate  float32
+	}
+
+	var heroes []Hero
+
+	res, err := http.Get("https://overwatch.blizzard.com/en-us/rates/?input=PC&map=all-maps&region=Americas&role=All&rq=1&tier=All")
 	if err != nil {
 		log.Fatalf("Error making GET request: %v", err)
 	}
@@ -27,11 +38,36 @@ func main() {
 	// 	log.Fatalf("Error reading response body: %v", err)
 	// }
 
-	fmt.Println(res)
+	// fmt.Println(doc)
 
 	// Extract and print data
-	doc.Find("tr").Each(func(index int, element *goquery.Selection) {
-		title := element.Text()
-		fmt.Println("Title:", title)
+	doc.Find(".hero-name").Each(func(index int, element *goquery.Selection) {
+
+		replacer := strings.NewReplacer(
+			".", "",
+			" ", "-",
+			"ú", "u",
+			":", "",
+			"ö", "o",
+		)
+
+		preConvertedPickrate, err := strconv.ParseFloat(strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-pickrate-value").Text(), "%", ""), 64)
+		if err != nil {
+			fmt.Println("Error Parsing Pick Rate", err)
+			return
+		}
+
+		preConvertedWinrate, err := strconv.ParseFloat(strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-winrate-value").Text(), "%", ""), 64)
+		if err != nil {
+			fmt.Println("Error Parsing Win Rate", err)
+			return
+		}
+
+		hero := Hero{Name: element.Text(), PickRate: float32(preConvertedPickrate), WinRate: float32(preConvertedWinrate)}
+		heroes = append(heroes, hero)
+
+		fmt.Println("Hero:", heroes[index].Name)
+		fmt.Println("Pick Rate:", heroes[index].PickRate)
+		fmt.Println("Win Rate:", heroes[index].WinRate)
 	})
 }
