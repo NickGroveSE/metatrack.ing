@@ -1,73 +1,82 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
-	"strconv"
-	"strings"
+	"time"
 
-	"github.com/PuerkitoBio/goquery"
+	"github.com/NickGroveSE/metatrack.ing/models"
 )
 
-func main() {
+type HealthResponse struct {
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	Message   string    `json:"message"`
+}
 
-	type Hero struct {
-		Name     string
-		PickRate float32
-		WinRate  float32
-	}
-
-	var heroes []Hero
-
-	res, err := http.Get("https://overwatch.blizzard.com/en-us/rates/?input=PC&map=all-maps&region=Americas&role=All&rq=1&tier=All")
-	if err != nil {
-		log.Fatalf("Error making GET request: %v", err)
-	}
-	defer res.Body.Close() // Always close the response body
-
-	// Parse the HTML
-	doc, err := goquery.NewDocumentFromReader(res.Body)
-	if err != nil {
-		fmt.Println("Error parsing HTML:", err)
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	// Only allow GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// body, err := io.ReadAll(res.Body)
-	// if err != nil {
-	// 	log.Fatalf("Error reading response body: %v", err)
-	// }
+	response := HealthResponse{
+		Status:    "healthy",
+		Timestamp: time.Now(),
+		Message:   "Server is running",
+	}
 
-	// fmt.Println(doc)
+	// Set content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
-	// Extract and print data
-	doc.Find(".hero-name").Each(func(index int, element *goquery.Selection) {
+	// Encode and send response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
 
-		replacer := strings.NewReplacer(
-			".", "",
-			" ", "-",
-			"ú", "u",
-			":", "",
-			"ö", "o",
-		)
+func owDataHandler(w http.ResponseWriter, r *http.Request) {
+	// Only allow GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-		preConvertedPickrate, err := strconv.ParseFloat(strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-pickrate-value").Text(), "%", ""), 64)
-		if err != nil {
-			fmt.Println("Error Parsing Pick Rate", err)
-			return
-		}
+	var data []models.OWHero
+	data = append(data, models.OWHero{Name: "Ana", PickRate: 29.6, WinRate: 48.6})
+	data = append(data, models.OWHero{Name: "Ashe", PickRate: 12, WinRate: 50.7})
+	data = append(data, models.OWHero{Name: "Baptiste", PickRate: 9.6, WinRate: 46.2})
 
-		preConvertedWinrate, err := strconv.ParseFloat(strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-winrate-value").Text(), "%", ""), 64)
-		if err != nil {
-			fmt.Println("Error Parsing Win Rate", err)
-			return
-		}
+	response := models.OWDataResponse{
+		Status:    "success",
+		Timestamp: time.Now(),
+		Data:      data,
+	}
 
-		hero := Hero{Name: element.Text(), PickRate: float32(preConvertedPickrate), WinRate: float32(preConvertedWinrate)}
-		heroes = append(heroes, hero)
+	// Set content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 
-		fmt.Println("Hero:", heroes[index].Name)
-		fmt.Println("Pick Rate:", heroes[index].PickRate)
-		fmt.Println("Win Rate:", heroes[index].WinRate)
-	})
+	// Encode and send response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
+
+func main() {
+	// Register handler
+	http.HandleFunc("/", healthHandler)
+	http.HandleFunc("/overwatch", owDataHandler)
+
+	// Server configuration
+	port := ":8080"
+	log.Printf("Starting server on port %s", port)
+
+	// Start server
+	if err := http.ListenAndServe(port, nil); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }

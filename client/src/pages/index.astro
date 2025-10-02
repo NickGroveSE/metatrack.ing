@@ -9,14 +9,14 @@ import OWLogo from '../assets/ow-logo.svg';
 const gameButtonData = [
   {
     logo: OWLogo.src,
-    link: "nothing",
+    path: "/overwatch",
     name: "Overwatch",
     nameSecondLine: "",
     active: true
   },
   {
     logo: MTGLogo.src,
-    link: "nothing",
+    path: "/",
     name: "Magic: ",
     nameSecondLine: "The Gathering",
     active: false
@@ -28,14 +28,14 @@ const gameButtonData = [
   <main>
     <GameButton client:load 
       logo={gameButtonData[0].logo} 
-      link={gameButtonData[0].link} 
+      path={gameButtonData[0].path} 
       name={gameButtonData[0].name} 
       namesl={gameButtonData[0].nameSecondLine}
       active={gameButtonData[0].active}
     />
     <GameButton client:load 
       logo={gameButtonData[1].logo} 
-      link={gameButtonData[1].link} 
+      path={gameButtonData[1].path} 
       name={gameButtonData[1].name} 
       namesl={gameButtonData[1].nameSecondLine}
       active={gameButtonData[1].active}

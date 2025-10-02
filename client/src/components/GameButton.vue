@@ -1,16 +1,16 @@
 <template>
-  <div class="button-container">
+  <a class="button-container" :href="path">
     <div class="button-image" :style="{ backgroundImage: `url(${logo})`, backgroundSize: 'cover',  backgroundOrigin: 'content-box', backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }"></div>
     <div class="button-title">{{ name }}</div>
     <div class="button-title-2">{{ namesl }}</div>
     <div class="coming-soon-layer" v-show="!active">Coming Soon</div>
-  </div>
+  </a>
 </template>
 
 <script setup>
 const props = defineProps({
   logo: String,
-  link: String,
+  path: String,
   name: String,
   namesl: String,
   active: Boolean
@@ -21,6 +21,7 @@ const props = defineProps({
 .button-container {
   flex-basis: 50%;
   position: relative;
+  text-decoration: none;
 }
 
 .button-image {
