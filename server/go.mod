@@ -1,4 +1,4 @@
-module github.com/NickGroveSE/metatrack.ing
+module github.com/NickGroveSE/metatrack.ing/server
 
 go 1.24.6
 

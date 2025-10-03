@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/NickGroveSE/metatrack.ing/models"
+	"github.com/NickGroveSE/metatrack.ing/server/models"
 	"github.com/PuerkitoBio/goquery"
 )
 

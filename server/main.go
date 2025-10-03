@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NickGroveSE/metatrack.ing/models"
+	"github.com/NickGroveSE/metatrack.ing/server/models"
 )
 
 type HealthResponse struct {
