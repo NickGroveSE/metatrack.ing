@@ -6,6 +6,8 @@ import (
 
 type OWHero struct {
 	Name     string
+	Color    string
+	Image    string
 	PickRate float32
 	WinRate  float32
 }

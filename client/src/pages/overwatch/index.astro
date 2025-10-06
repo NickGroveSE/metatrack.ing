@@ -1,18 +1,21 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import HeroCompass from '../../components/HeroCompass.vue';
+import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const response = await fetch('http://localhost:8080/overwatch');
+const response = await fetch('http://localhost:8080/overwatch?queue=2&role=Support&region=Americas&input=PC&rank=All&map=all-maps');
 const data = await response.json();
 ---
 
 <Layout title="MetaTrack" logo={OWLogo.src}>
   <main>
     <!-- <h1>Data from API</h1>
+    <div>{typeof data}</div>
     <pre>{JSON.stringify(data, null, 2)}</pre> -->
-    <HeroCompass client:load/>
+    <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
+    <CompassFilters class="container" id="filters" client:load/>
   </main>
 </Layout>
 
@@ -22,8 +25,48 @@ const data = await response.json();
     max-width: 1000px;
     margin: 20px auto 0 auto;
     color: white;
+    
+  }
+
+  .container {
+    display: inline-block;
+    vertical-align: top;
   }
   
   
 </style>
+
+<script>
+  declare global {
+    interface Window {
+      handleFilters: (filters: any) => void;
+    }
+  }
+
+  window.handleFilters = async (filters) => {
+    console.log('Filters applied:', filters.gameMode);
+
+    var response = new Response()
+    
+    if (filters.gameMode == "2") {
+      response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
+    } else {
+      response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&map="+filters.map);
+    }
+    
+    const data = await response.json();
+    console.log(data)
+
+    const compass = document.querySelector("#compass") as any
+
+    if (compass) {
+      const event = new CustomEvent('hero-data-updated', { 
+        detail: data.data
+      });
+      compass.dispatchEvent(event);
+    }
+    
+  };
+</script>
+
 

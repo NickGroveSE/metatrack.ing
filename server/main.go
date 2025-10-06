@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/NickGroveSE/metatrack.ing/server/models"
+	"github.com/NickGroveSE/metatrack.ing/server/scrape"
 )
 
 type HealthResponse struct {
@@ -39,16 +40,27 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func owDataHandler(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:4321")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
 	// Only allow GET requests
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var data []models.OWHero
-	data = append(data, models.OWHero{Name: "Ana", PickRate: 29.6, WinRate: 48.6})
-	data = append(data, models.OWHero{Name: "Ashe", PickRate: 12, WinRate: 50.7})
-	data = append(data, models.OWHero{Name: "Baptiste", PickRate: 9.6, WinRate: 46.2})
+	queryParams := r.URL.Query()
+
+	input := queryParams.Get("input")
+	owmap := queryParams.Get("map")
+	region := queryParams.Get("region")
+	role := queryParams.Get("role")
+	queue := queryParams.Get("queue")
+	rank := queryParams.Get("rank")
+
+	var data []models.OWHero = scrape.Scrape(input, owmap, region, role, queue, rank)
 
 	response := models.OWDataResponse{
 		Status:    "success",

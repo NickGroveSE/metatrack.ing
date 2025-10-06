@@ -7,14 +7,16 @@
   </a>
 </template>
 
-<script setup>
-const props = defineProps({
-  logo: String,
-  path: String,
-  name: String,
-  namesl: String,
-  active: Boolean
-})
+<script>
+export default {
+  props: {
+    logo: String,
+    path: String,
+    name: String,
+    namesl: String,
+    active: Boolean,
+  }
+}
 </script>
 
 <style scoped>

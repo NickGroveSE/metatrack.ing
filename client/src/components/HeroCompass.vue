@@ -45,7 +45,7 @@
 
         <!-- Data points -->
         <g v-for="(hero, i) in data" :key="hero.Name">
-          <text
+          <!-- <text
             :x="scaleX(hero.PickRate)"
             :y="scaleY(hero.WinRate) - 15"
             text-anchor="middle"
@@ -54,13 +54,13 @@
             font-weight="600"
           >
             {{ hero.Name }}
-          </text>
+          </text> -->
           <circle
             :cx="scaleX(hero.PickRate)"
             :cy="scaleY(hero.WinRate)"
-            r="8"
-            :fill="colors[i % colors.length]"
-            opacity="0.85"
+            r="10"
+            :fill="hero.Color"
+            opacity="0.75"
             class="hero-dot"
             @mouseenter="handleMouseEnter(hero, $event)"
             @mousemove="handleMouseMove($event)"
@@ -77,6 +77,10 @@
           top: `${tooltip.y - 15}px`
         }"
       >
+        <img 
+          class="tooltip-image"
+          :src="tooltip.data.Image"
+        />
         <div class="tooltip-name">{{ tooltip.data.Name }}</div>
         <div class="tooltip-stat">Pick Rate: {{ tooltip.data.PickRate }}%</div>
         <div class="tooltip-stat">Win Rate: {{ tooltip.data.WinRate }}%</div>
@@ -86,17 +90,16 @@
 </template>
 
 <script>
+
 export default {
   name: 'OverwatchScatterPlot',
+  props: {
+    heroData: Object,
+  },
   data() {
     return {
-      data: [
-        { Name: 'Ana', PickRate: 29.6, WinRate: 48.6 },
-        { Name: 'Ashe', PickRate: 12, WinRate: 50.7 },
-        { Name: 'Baptiste', PickRate: 9.6, WinRate: 46.2 }
-      ],
+      data: this.heroData,
       margin: { top: 40, right: 60, bottom: 30, left: 60 },
-      colors: ['#f79d00', '#ff6b35', '#00d4ff'],
       tooltip: {
         show: false,
         x: 0,
@@ -104,6 +107,21 @@ export default {
         data: null
       }
     };
+  },
+  watch: {
+    heroData: {
+      handler(newVal) {
+        this.data = newVal;
+      },
+      deep: true,
+      immediate: true
+    }
+  },
+  mounted() {
+    this.$el.addEventListener('hero-data-updated', (event) => {
+      // This updates internal data, not the prop
+      this.data = event.detail;
+    });
   },
   computed: {
     width() {
@@ -143,16 +161,16 @@ export default {
       return this.maxWinRate - this.minWinRate;
     },
     paddedMinPickRate() {
-      return this.minPickRate - this.pickRateRange * 0.2;
+      return this.minPickRate - this.pickRateRange * 0.1;
     },
     paddedMaxPickRate() {
-      return this.maxPickRate + this.pickRateRange * 0.2;
+      return this.maxPickRate + this.pickRateRange * 0.1;
     },
     paddedMinWinRate() {
-      return this.minWinRate - this.winRateRange * 0.2;
+      return this.minWinRate - this.winRateRange * 0.1;
     },
     paddedMaxWinRate() {
-      return this.maxWinRate + this.winRateRange * 0.2;
+      return this.maxWinRate + this.winRateRange * 0.1;
     },
     centerX() {
       return this.scaleX(this.centerPickRate);
@@ -274,11 +292,19 @@ export default {
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.tooltip-image {
+  display: block;
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  margin-bottom: 5px;
+}
+
 .tooltip-name {
   font-weight: bold;
   font-size: 15px;
   margin-bottom: 5px;
-  color: #f79d00;
+  color: #fbbf24;
 }
 
 .tooltip-stat {
