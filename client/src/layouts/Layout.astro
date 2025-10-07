@@ -21,6 +21,21 @@ const { title, logo } = Astro.props;
   <body>
     <header>
       <img src={logo} id="logo"/>
+      <a href="/"><h1>metatrack.ing</h1></a>
+      <div id="text-nav">
+        <a href="/donate"><div class="nav-button">Support Our Work</div></a>
+        <div id="dropdown">
+          <div class="nav-button">Games</div>
+          <div id="dropdown-content">
+            <a href="/overwatch">Overwatch</a>
+            <!-- <a href="/mtg">Magic: The Gathering</a> -->
+          </div>
+        </div>
+        <a href="/about"><div class="nav-button">About</div></a>
+      </div>
+      <!-- <select name="Games">
+        <a href="/overwatch"><option>Overwatch 2</option></a>
+      </select> -->
     </header>
     <slot />
   </body>
@@ -35,7 +50,6 @@ const { title, logo } = Astro.props;
     margin: 0;
     background: #111827;
     min-height: 100vh;
-    color: #333;
   }
   
   * {
@@ -46,9 +60,11 @@ const { title, logo } = Astro.props;
     height: 80px;
     background-color: #111827;
     border-bottom: 5px solid #fbbf24;
-    display: flex;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 50px 0 30px;
+    width: 100%;
+    display: flex;
+    overflow: hidden;
   }
 
   #logo {
@@ -56,4 +72,62 @@ const { title, logo } = Astro.props;
     height: 60px;
     display: block;
   }
+
+  h1 {
+    padding: 0 10px 5px 10px;
+    color: #fbbf24;
+  }
+
+  #text-nav {
+    display: flex;
+    margin-left: auto;
+    color: #fbbf24;
+    font-weight: 700;
+    height: 100%;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .nav-button {
+    line-height: 45px;
+    padding: 15px 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    color: #fbbf24;
+    font-size: 18px;
+  }
+
+  .nav-button:hover {
+    background-color: #fbbf24;
+    color: #111827;
+  }
+
+  #dropdown-content {
+    display: none;
+    position: absolute;
+    z-index: 1;
+    background-color: #374151;
+  }
+
+  #dropdown-content a {
+    float: none;
+    color: #fbbf24;
+    padding: 15px 15px;
+    display: block;
+    text-align: left;
+  }
+
+  
+  #dropdown-content a:hover {
+    background-color: #fbbf24;
+    color: #111827;
+  }
+
+
+  #dropdown:hover #dropdown-content {
+    display: block;
+  }
+
 </style>

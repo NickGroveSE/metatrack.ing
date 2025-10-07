@@ -20,6 +20,11 @@ export default {
 </script>
 
 <style scoped>
+
+a:hover .button-image {
+  box-shadow: 0 6px 25px rgba(249, 168, 38, 0.6);
+}
+
 .button-container {
   flex-basis: 50%;
   position: relative;
@@ -31,6 +36,7 @@ export default {
   border: 5px solid #fbbf24;
   border-radius: 25px;
   padding: 20px;
+  transition: all 0.3s ease;
 }
 
 .button-title {
