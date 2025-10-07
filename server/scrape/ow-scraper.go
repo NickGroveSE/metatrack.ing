@@ -68,7 +68,7 @@ func Scrape(input string, owmap string, region string, role string, queue string
 
 			preConvertedPickrate, err := strconv.ParseFloat(strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-pickrate-value").Text(), "%", ""), 64)
 			if err != nil {
-				fmt.Println("Error Parsing Pick Rate", err)
+				fmt.Println("Error Parsing Pick Rate "+strings.ReplaceAll(doc.Find("#"+replacer.Replace(strings.ToLower(element.Text()))+"-pickrate-value").Text(), "%", "")+" for "+element.Text(), err)
 				return
 			}
 

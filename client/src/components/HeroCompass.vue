@@ -45,16 +45,17 @@
 
         <!-- Data points -->
         <g v-for="(hero, i) in data" :key="hero.Name">
-          <!-- <text
-            :x="scaleX(hero.PickRate)"
-            :y="scaleY(hero.WinRate) - 15"
+          <text
+            :x="getLabelPosition(hero, i).x"
+            :y="getLabelPosition(hero, i).y"
             text-anchor="middle"
             fill="#fff"
             font-size="12"
             font-weight="600"
+            class="hero-dot-text"
           >
             {{ hero.Name }}
-          </text> -->
+          </text>
           <circle
             :cx="scaleX(hero.PickRate)"
             :cy="scaleY(hero.WinRate)"
@@ -66,6 +67,7 @@
             @mousemove="handleMouseMove($event)"
             @mouseleave="handleMouseLeave"
           />
+
         </g>
       </svg>
 
@@ -105,7 +107,8 @@ export default {
         x: 0,
         y: 0,
         data: null
-      }
+      },
+      labelPositions: []
     };
   },
   watch: {
@@ -115,12 +118,29 @@ export default {
       },
       deep: true,
       immediate: true
+    },
+    data: {
+      handler() {
+        if (this.data && this.data.length > 0) {
+          this.$nextTick(() => {
+            this.calculateLabelPositions();
+          });
+        }
+      },
+      deep: true
     }
   },
   mounted() {
     this.$el.addEventListener('hero-data-updated', (event) => {
       // This updates internal data, not the prop
       this.data = event.detail;
+    });
+
+    // Wait for data to be fully set before calculating positions
+    this.$nextTick(() => {
+      if (this.data && this.data.length > 0) {
+        this.calculateLabelPositions();
+      }
     });
   },
   computed: {
@@ -187,6 +207,112 @@ export default {
     scaleY(value) {
       return this.margin.top + this.height - (value - this.paddedMinWinRate) / 
              (this.paddedMaxWinRate - this.paddedMinWinRate) * this.height;
+    },
+calculateLabelPositions() {
+      const positions = [];
+      const labelHeight = 16; // Approximate height of label with padding
+      
+      this.data.forEach((hero, i) => {
+        const x = this.scaleX(hero.PickRate);
+        const y = this.scaleY(hero.WinRate);
+        
+        // Estimate label width based on character count (roughly 7px per character)
+        const nameLength = hero.Name.length;
+        const estimatedWidth = nameLength * 7;
+        const halfWidth = estimatedWidth / 2;
+        
+        // Possible offsets to try (top, bottom, left, right, diagonal)
+        // Adjust horizontal offsets based on name length
+        const offsets = [
+          { x: 0, y: -12 },                    // top (default)
+          { x: 0, y: 20 },                     // bottom
+          { x: -halfWidth - 10, y: 4 },        // left (adjusted)
+          { x: halfWidth + 10, y: 4 },         // right (adjusted)
+          { x: -halfWidth - 5, y: -10 },       // top-left (adjusted)
+          { x: halfWidth + 5, y: -10 },        // top-right (adjusted)
+          { x: -halfWidth - 5, y: 20 },        // bottom-left (adjusted)
+          { x: halfWidth + 5, y: 20 }          // bottom-right (adjusted)
+        ];
+        
+        let bestOffset = offsets[0];
+        let bestScore = -Infinity;
+        
+        // Try each offset and score based on distance from other labels AND dots
+        for (const offset of offsets) {
+          const testX = x + offset.x;
+          const testY = y + offset.y;
+          
+          let minLabelDist = Infinity;
+          let minDotDist = Infinity;
+          
+          // Check distance to all existing labels (rectangular collision)
+          for (let j = 0; j < positions.length; j++) {
+            const pos = positions[j];
+            const otherHero = this.data[j];
+            const otherWidth = otherHero.Name.length * 7;
+            
+            // Calculate rectangular overlap
+            const xDist = Math.abs(testX - pos.x);
+            const yDist = Math.abs(testY - pos.y);
+            const widthSum = (estimatedWidth + otherWidth) / 2 + 10;
+            
+            // Penalize if labels would overlap
+            if (xDist < widthSum && yDist < labelHeight) {
+              minLabelDist = Math.min(minLabelDist, 0);
+            } else {
+              const dist = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+              minLabelDist = Math.min(minLabelDist, dist);
+            }
+          }
+          
+          // Check distance to all dots (avoid covering other dots)
+          for (let j = 0; j < this.data.length; j++) {
+            if (j === i) continue; // Skip own dot
+            
+            const otherHero = this.data[j];
+            const dotX = this.scaleX(otherHero.PickRate);
+            const dotY = this.scaleY(otherHero.WinRate);
+            
+            // Check if label would cover the dot
+            const xDist = Math.abs(testX - dotX);
+            const yDist = Math.abs(testY - dotY);
+            
+            if (xDist < halfWidth && yDist < labelHeight / 2) {
+              minDotDist = Math.min(minDotDist, 0); // Label covers dot
+            } else {
+              const dist = Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2));
+              minDotDist = Math.min(minDotDist, dist);
+            }
+          }
+          
+          // Score this position (prioritize avoiding overlaps, then maximize distance)
+          const score = minLabelDist * 2 + minDotDist;
+          
+          // If this position is better, use it
+          if (score > bestScore) {
+            bestScore = score;
+            bestOffset = offset;
+          }
+        }
+        
+        positions.push({
+          x: x + bestOffset.x,
+          y: y + bestOffset.y,
+          width: estimatedWidth
+        });
+      });
+      
+      this.labelPositions = positions;
+    },
+    getLabelPosition(hero, index) {
+      if (this.labelPositions[index]) {
+        return this.labelPositions[index];
+      }
+      // Fallback to default position
+      return {
+        x: this.scaleX(hero.PickRate),
+        y: this.scaleY(hero.WinRate) - 12
+      };
     },
     handleMouseEnter(hero, event) {
       this.tooltip = {
@@ -269,6 +395,15 @@ export default {
 .axis-line {
   stroke: rgba(255, 255, 255, 0.5);
   stroke-width: 2;
+}
+
+.hero-dot-text {
+  text-shadow:
+    -1px -1px 0 #111827,
+    1px -1px 0 #111827,
+    -1px 1px 0 #111827,
+    1px 1px 0 #111827;
+  transition: all 0.3s ease;
 }
 
 .hero-dot {
