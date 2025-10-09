@@ -22,12 +22,12 @@
       <label class="filter-label">Game Mode</label>
       <select v-model="filters.gameMode" class="filter-select" @change="onGameModeChange">
         <option value="0">Quick Play</option>
-        <option value="2">Competitive</option>
+        <option value="1">Competitive</option>
       </select>
     </div>
 
     <!-- Conditional Rank Tier Dropdown -->
-    <div v-if="filters.gameMode === '2'" class="filter-group">
+    <div v-if="filters.gameMode === '1'" class="filter-group">
       <label class="filter-label">Rank Tier</label>
       <select v-model="filters.rankTier" class="filter-select">
         <option value="All">All Ranks</option>
@@ -44,7 +44,50 @@
     <div class="filter-group">
       <label class="filter-label">Map</label>
       <select v-model="filters.map" class="filter-select">
-        <option value="">All Maps</option>
+        <option value="all-maps">All Maps</option>
+        <optgroup v-if="filters.gameMode === '0'" label="Clash">
+          <option value="hanoka">Hanoka</option>
+          <option value="throne-of-anubis">Throne of Anubis</option>
+        </optgroup>
+        <optgroup label="Control">
+          <option value="antartic-peninsula">Antartic Peninsula</option>
+          <option value="busan">Busan</option>
+          <option value="ilios">Ilios</option>
+          <option value="lijang-tower">Lijang Tower</option>
+          <option value="nepal">Nepal</option>
+          <option value="oasis">Oasis</option>
+          <option value="samoa">Samoa</option>
+        </optgroup>
+        <optgroup label="Escort">
+          <option value="circuit-royal">Circuit Royal</option>
+          <option value="dorado">Dorado</option>
+          <option value="havana">Havana</option>
+          <option value="junkertown">Junkertown</option>
+          <option value="rialto">Rialto</option>
+          <option value="route-66">Route 66</option>
+          <option value="shambali-monastery">Shambali Monastery</option>
+          <option value="watchpoint-gibraltar">Watchpoint: Gilbraltar</option>
+        </optgroup>
+        <optgroup label="Flashpoint">
+          <option value="aatlis">Aatlis</option>
+          <option value="new-junk-city">New Junk City</option>
+          <option value="survasa">Survasa</option>
+        </optgroup>
+        <optgroup label="Hybrid">
+          <option value="blizzard-world">Blizzard World</option>
+          <option value="eichenwalde">Eichenwalde</option>
+          <option value="hollywood">Hollywood</option>
+          <option value="kings-row">King's Row</option>
+          <option value="midtown">Midtown</option>
+          <option value="numbani">Numbani</option>
+          <option value="paraiso">Paraíso</option>
+        </optgroup>
+        <optgroup label="Push">
+          <option value="colosseo">Colosseo</option>
+          <option value="esperanca">Esperança</option>
+          <option value="new-queen-street">New Queen Street</option>
+          <option value="runasapi">Runasapi</option>
+        </optgroup>
       </select>
     </div>
 
@@ -71,9 +114,9 @@ export default {
       filters: {
         role: 'Support',
         input: 'PC',
-        gameMode: '2',
+        gameMode: '1',
         rankTier: 'All', // Default rank tier
-        map: '',
+        map: 'all-maps',
         region: 'Americas'
       }
     }
@@ -160,11 +203,18 @@ export default {
   box-shadow: 0 0 20px rgba(249, 168, 38, 0.3);
 }
 
+.filter-select optgroup {
+  background: #1a1a2e;
+  color: #06b6d4;
+  padding: 10px;
+}
+
 .filter-select option {
   background: #1a1a2e;
   color: #ffffff;
   padding: 10px;
 }
+
 
 /* Apply Button */
 .apply-filters-btn {

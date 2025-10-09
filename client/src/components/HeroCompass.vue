@@ -66,6 +66,7 @@
             @mouseenter="handleMouseEnter(hero, $event)"
             @mousemove="handleMouseMove($event)"
             @mouseleave="handleMouseLeave"
+            @click="handleDotClick(hero, $event)"
           />
 
         </g>
@@ -104,6 +105,8 @@ export default {
       margin: { top: 40, right: 60, bottom: 30, left: 60 },
       tooltip: {
         show: false,
+        pinned: false,
+        pinnedHero: null,
         x: 0,
         y: 0,
         data: null
@@ -208,7 +211,7 @@ export default {
       return this.margin.top + this.height - (value - this.paddedMinWinRate) / 
              (this.paddedMaxWinRate - this.paddedMinWinRate) * this.height;
     },
-calculateLabelPositions() {
+    calculateLabelPositions() {
       const positions = [];
       const labelHeight = 16; // Approximate height of label with padding
       
@@ -315,26 +318,64 @@ calculateLabelPositions() {
       };
     },
     handleMouseEnter(hero, event) {
+      // Don't show tooltip on hover if it's pinned to a different hero
+      if (this.tooltip.pinned && this.tooltip.pinnedHero !== hero.Name) {
+        return;
+      }
+      
       this.tooltip = {
         show: true,
+        pinned: this.tooltip.pinned,
+        pinnedHero: this.tooltip.pinnedHero,
         x: event.pageX,
         y: event.pageY,
         data: hero
       };
     },
     handleMouseMove(event) {
-      if (this.tooltip.show) {
+      // Don't update position if tooltip is pinned
+      if (this.tooltip.show && !this.tooltip.pinned) {
         this.tooltip.x = event.pageX;
         this.tooltip.y = event.pageY;
       }
     },
     handleMouseLeave() {
-      this.tooltip = {
-        show: false,
-        x: 0,
-        y: 0,
-        data: null
-      };
+      // Don't hide tooltip if it's pinned
+      if (!this.tooltip.pinned) {
+        this.tooltip = {
+          show: false,
+          pinned: false,
+          pinnedHero: null,
+          x: 0,
+          y: 0,
+          data: null
+        };
+      }
+    },
+    handleDotClick(hero, event) {
+      event.stopPropagation();
+      
+      // If clicking the same hero that's pinned, unpin it
+      if (this.tooltip.pinned && this.tooltip.pinnedHero === hero.Name) {
+        this.tooltip = {
+          show: false,
+          pinned: false,
+          pinnedHero: null,
+          x: 0,
+          y: 0,
+          data: null
+        };
+      } else {
+        // Pin the tooltip to this hero
+        this.tooltip = {
+          show: true,
+          pinned: true,
+          pinnedHero: hero.Name,
+          x: event.pageX,
+          y: event.pageY,
+          data: hero
+        };
+      }
     }
   }
 };

@@ -14,7 +14,7 @@ import (
 
 func main() {
 
-	Scrape("PC", "all-maps", "Americas", "Support", "2", "All")
+	Scrape("PC", "all-maps", "Americas", "Support", "1", "All")
 
 }
 
@@ -22,6 +22,9 @@ func Scrape(input string, owmap string, region string, role string, queue string
 
 	var heroes []models.OWHero
 	var indexes []int
+
+	requestLink := "https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank
+	fmt.Println(requestLink)
 
 	res, err := http.Get("https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank)
 	if err != nil {

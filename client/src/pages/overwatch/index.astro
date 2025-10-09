@@ -5,7 +5,7 @@ import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const response = await fetch('http://localhost:8080/overwatch?queue=2&role=Support&region=Americas&input=PC&rank=All&map=all-maps');
+const response = await fetch('http://localhost:8080/overwatch?queue=1&role=Support&region=Americas&input=PC&rank=All&map=all-maps');
 const data = await response.json();
 ---
 
@@ -48,7 +48,7 @@ const data = await response.json();
 
     var response = new Response()
     
-    if (filters.gameMode == "2") {
+    if (filters.gameMode == "1") {
       response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
     } else {
       response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&map="+filters.map);
