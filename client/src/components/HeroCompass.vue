@@ -62,11 +62,22 @@
             r="10"
             :fill="hero.Color"
             opacity="0.75"
-            class="hero-dot"
+            :class="{ 'hero-dot': true, 'pinned': tooltip.pinned && tooltip.pinnedHero === hero.Name }"
             @mouseenter="handleMouseEnter(hero, $event)"
             @mousemove="handleMouseMove($event)"
             @mouseleave="handleMouseLeave"
             @click="handleDotClick(hero, $event)"
+          />
+          <circle
+            v-if="tooltip.pinned && tooltip.pinnedHero === hero.Name || hoveredHero === hero.Name"
+            :cx="scaleX(hero.PickRate)"
+            :cy="scaleY(hero.WinRate)"
+            r="10"
+            fill="none"
+            :stroke="hero.Color"
+            opacity="1"
+            stroke-width="3"
+            class="pulse-ring"
           />
 
         </g>
@@ -80,6 +91,13 @@
           top: `${tooltip.y - 15}px`
         }"
       >
+        <button 
+          v-if="tooltip.pinned"
+          class="tooltip-close"
+          @click="closeTooltip"
+        >
+          ×
+        </button>
         <img 
           class="tooltip-image"
           :src="tooltip.data.Image"
@@ -103,6 +121,7 @@ export default {
     return {
       data: this.heroData,
       margin: { top: 40, right: 60, bottom: 30, left: 60 },
+      hoveredHero: null, 
       tooltip: {
         show: false,
         pinned: false,
@@ -124,6 +143,16 @@ export default {
     },
     data: {
       handler() {
+        // Reset tooltip whenever data changes
+        this.tooltip = {
+          show: false,
+          pinned: false,
+          pinnedHero: null,
+          x: 0,
+          y: 0,
+          data: null
+        };
+        this.hoveredHero = null;
         if (this.data && this.data.length > 0) {
           this.$nextTick(() => {
             this.calculateLabelPositions();
@@ -318,6 +347,7 @@ export default {
       };
     },
     handleMouseEnter(hero, event) {
+      this.hoveredHero = hero.Name;
       // Don't show tooltip on hover if it's pinned to a different hero
       if (this.tooltip.pinned && this.tooltip.pinnedHero !== hero.Name) {
         return;
@@ -340,6 +370,7 @@ export default {
       }
     },
     handleMouseLeave() {
+      this.hoveredHero = null;
       // Don't hide tooltip if it's pinned
       if (!this.tooltip.pinned) {
         this.tooltip = {
@@ -376,6 +407,17 @@ export default {
           data: hero
         };
       }
+    },
+    closeTooltip() {
+      this.tooltip = {
+        show: false,
+        pinned: false,
+        pinnedHero: null,
+        x: 0,
+        y: 0,
+        data: null
+      };
+      this.hoveredHero = null;
     }
   }
 };
@@ -458,9 +500,14 @@ export default {
 .hero-dot {
   cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .hero-dot:hover {
+  opacity: 1 !important;
+}
+
+.hero-dot.pinned {
   opacity: 1 !important;
 }
 
@@ -471,9 +518,32 @@ export default {
   padding: 10px 15px;
   border-radius: 8px;
   font-size: 13px;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 100;
   border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.tooltip-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.tooltip-close:hover {
+  color: #fbbf24;
 }
 
 .tooltip-image {
@@ -493,6 +563,21 @@ export default {
 
 .tooltip-stat {
   margin: 3px 0;
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    r: 10;
+    opacity: 1;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
 }
 
 /* Responsive adjustments */

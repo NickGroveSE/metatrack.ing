@@ -70,7 +70,6 @@ const { title, logo } = Astro.props;
   
   * {
     box-sizing: border-box;
-    overflow: auto; /* or overflow-y: auto; for vertical only */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
   }
@@ -131,6 +130,7 @@ const { title, logo } = Astro.props;
 
   #dropdown {
     position: relative;
+    overflow: visible;
   }
 
   #dropdown-content {

@@ -21,6 +21,10 @@ export default {
 
 <style scoped>
 
+a {
+  overflow: visible;
+}
+
 a:hover .button-image {
   box-shadow: 0 6px 25px rgba(249, 168, 38, 0.6);
 }
