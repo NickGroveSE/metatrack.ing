@@ -11,11 +11,37 @@ const data = await response.json();
 
 <Layout title="MetaTrack" logo={OWLogo.src}>
   <main>
-    <!-- <h1>Data from API</h1>
-    <div>{typeof data}</div>
-    <pre>{JSON.stringify(data, null, 2)}</pre> -->
+    <button id="filters-button" class="filters-toggle-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      Filters
+    </button>
+    
     <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
-    <CompassFilters class="container" id="filters" client:load/>
+    
+    <div id="filters-container" class="container">
+      <CompassFilters id="filters" client:load/>
+    </div>
+
+    <div id="filters-modal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Filters</h2>
+          <button id="close-modal" class="close-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <CompassFilters id="filters-modal-content" client:load/>
+        </div>
+      </div>
+    </div>
+
+    <div id="modal-overlay" class="modal-overlay"></div>
   </main>
 </Layout>
 
@@ -25,15 +51,164 @@ const data = await response.json();
     max-width: 1000px;
     margin: 20px auto 0 auto;
     color: white;
-    
   }
 
   .container {
     display: inline-block;
     vertical-align: top;
   }
-  
-  
+
+  #compass {
+    margin-right: 2rem;
+  }
+
+  #filters-container {
+    vertical-align: top;
+  }
+
+  /* Filters toggle button - hidden on desktop */
+  .filters-toggle-btn {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    background-color: #fbbf24;
+    color: #111827;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .filters-toggle-btn:hover {
+    background-color: #f59e0b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  }
+
+  .filters-toggle-btn:active {
+    transform: translateY(0);
+  }
+
+  /* Modal styles */
+  .modal {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 90%;
+    max-width: 400px;
+    height: 100vh;
+    z-index: 1001;
+    transition: right 0.3s ease;
+  }
+
+  .modal.active {
+    right: 0;
+  }
+
+  .modal-content {
+    background-color: #1f2937;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 2px solid #fbbf24;
+    background-color: #111827;
+  }
+
+  .modal-header h2 {
+    margin: 0;
+    color: #fbbf24;
+    font-size: 1.5rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: #fbbf24;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+  }
+
+  .close-btn:hover {
+    background-color: #374151;
+    transform: rotate(90deg);
+  }
+
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+  }
+
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Responsive styles */
+  @media (max-width: 980px) {
+    main {
+      padding: 1.5rem;
+    }
+
+    .filters-toggle-btn {
+      display: flex;
+    }
+
+    #filters-container {
+      display: none;
+    }
+
+    .container {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    main {
+      padding: 1rem;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .filters-toggle-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 </style>
 
 <script>
@@ -42,6 +217,35 @@ const data = await response.json();
       handleFilters: (filters: any) => void;
     }
   }
+
+  // Modal functionality
+  const filtersButton = document.getElementById('filters-button');
+  const modal = document.getElementById('filters-modal');
+  const modalOverlay = document.getElementById('modal-overlay');
+  const closeButton = document.getElementById('close-modal');
+
+  function openModal() {
+    modal?.classList.add('active');
+    modalOverlay?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    modal?.classList.remove('active');
+    modalOverlay?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  filtersButton?.addEventListener('click', openModal);
+  closeButton?.addEventListener('click', closeModal);
+  modalOverlay?.addEventListener('click', closeModal);
+
+  // Close modal on escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+      closeModal();
+    }
+  });
 
   window.handleFilters = async (filters) => {
     console.log('Filters applied:', filters.gameMode);
@@ -65,8 +269,10 @@ const data = await response.json();
       });
       compass.dispatchEvent(event);
     }
-    
+
+    // Close modal after applying filters on mobile
+    if (window.innerWidth <= 980) {
+      closeModal();
+    }
   };
 </script>
-
-

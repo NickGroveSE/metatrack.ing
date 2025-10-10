@@ -33,10 +33,26 @@ const { title, logo } = Astro.props;
         </div>
         <a href="/about"><div class="nav-button">About</div></a>
       </div>
-      <!-- <select name="Games">
-        <a href="/overwatch"><option>Overwatch 2</option></a>
-      </select> -->
+      <button id="hamburger" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
     </header>
+    
+    <div id="mobile-sidebar">
+      <a href="/donate" class="mobile-nav-item">Support Our Work</a>
+      <div class="mobile-dropdown">
+        <div class="mobile-nav-item mobile-dropdown-trigger">Games</div>
+        <div class="mobile-dropdown-content">
+          <a href="/overwatch">Overwatch</a>
+        </div>
+      </div>
+      <a href="/about" class="mobile-nav-item">About</a>
+    </div>
+    
+    <div id="overlay"></div>
+    
     <slot />
   </body>
 </html>
@@ -54,6 +70,13 @@ const { title, logo } = Astro.props;
   
   * {
     box-sizing: border-box;
+    overflow: auto; /* or overflow-y: auto; for vertical only */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+
+  *::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
   }
 
   header {
@@ -64,7 +87,9 @@ const { title, logo } = Astro.props;
     padding: 0 50px 0 30px;
     width: 100%;
     display: flex;
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
+    z-index: 1000;
   }
 
   #logo {
@@ -104,11 +129,16 @@ const { title, logo } = Astro.props;
     color: #111827;
   }
 
+  #dropdown {
+    position: relative;
+  }
+
   #dropdown-content {
     display: none;
     position: absolute;
     z-index: 1;
     background-color: #374151;
+    top: 100%;
   }
 
   #dropdown-content a {
@@ -117,17 +147,218 @@ const { title, logo } = Astro.props;
     padding: 15px 15px;
     display: block;
     text-align: left;
+    white-space: nowrap;
   }
 
-  
   #dropdown-content a:hover {
     background-color: #fbbf24;
     color: #111827;
   }
 
-
   #dropdown:hover #dropdown-content {
     display: block;
   }
 
+  /* Hamburger menu */
+  #hamburger {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    margin-left: auto;
+    width: 30px;
+    height: 24px;
+    position: relative;
+  }
+
+  #hamburger span {
+    display: block;
+    width: 100%;
+    height: 3px;
+    background-color: #fbbf24;
+    transition: all 0.3s ease;
+    position: absolute;
+  }
+
+  #hamburger span:nth-child(1) {
+    top: 0;
+  }
+
+  #hamburger span:nth-child(2) {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  #hamburger span:nth-child(3) {
+    bottom: 0;
+  }
+
+  #hamburger.active span:nth-child(1) {
+    transform: rotate(45deg);
+    top: 50%;
+  }
+
+  #hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  #hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg);
+    bottom: 50%;
+  }
+
+  /* Mobile sidebar */
+  #mobile-sidebar {
+    position: fixed;
+    top: 0;
+    right: -300px;
+    width: 300px;
+    height: 100vh;
+    background-color: #1f2937;
+    transition: right 0.3s ease;
+    z-index: 1001;
+    padding-top: 100px;
+    overflow-y: auto;
+  }
+
+  #mobile-sidebar.active {
+    right: 0;
+  }
+
+  .mobile-nav-item {
+    display: block;
+    color: #fbbf24;
+    padding: 20px 30px;
+    font-size: 18px;
+    font-weight: 700;
+    border-bottom: 1px solid #374151;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .mobile-nav-item:hover {
+    background-color: #374151;
+  }
+
+  .mobile-dropdown-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    background-color: #374151;
+  }
+
+  .mobile-dropdown.active .mobile-dropdown-content {
+    max-height: 200px;
+  }
+
+  .mobile-dropdown-content a {
+    display: block;
+    color: #fbbf24;
+    padding: 15px 30px 15px 50px;
+    font-size: 16px;
+    border-bottom: 1px solid #4b5563;
+  }
+
+  .mobile-dropdown-content a:hover {
+    background-color: #4b5563;
+  }
+
+  /* Overlay */
+  #overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+
+  #overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #fbbf24; /* Scrollbar color */
+    border-radius: 2px;
+  }
+
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    header {
+      padding: 0 20px;
+    }
+
+    #text-nav {
+      display: none;
+    }
+
+    #hamburger {
+      display: flex;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      padding: 0 5px 5px 10px;
+    }
+
+    #logo {
+      height: 50px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    h1 {
+      font-size: 1rem;
+    }
+
+    #logo {
+      height: 40px;
+    }
+  }
 </style>
+
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const sidebar = document.getElementById('mobile-sidebar');
+  const overlay = document.getElementById('overlay');
+  const mobileDropdown = document.querySelector('.mobile-dropdown');
+  const mobileDropdownTrigger = document.querySelector('.mobile-dropdown-trigger');
+
+  hamburger?.addEventListener('click', () => {
+    hamburger.classList.toggle('active');
+    sidebar?.classList.toggle('active');
+    overlay?.classList.toggle('active');
+  });
+
+  overlay?.addEventListener('click', () => {
+    hamburger?.classList.remove('active');
+    sidebar?.classList.remove('active');
+    overlay?.classList.remove('active');
+  });
+
+  mobileDropdownTrigger?.addEventListener('click', () => {
+    mobileDropdown?.classList.toggle('active');
+  });
+
+  // Close sidebar when clicking a link
+  const sidebarLinks = sidebar?.querySelectorAll('a');
+  sidebarLinks?.forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger?.classList.remove('active');
+      sidebar?.classList.remove('active');
+      overlay?.classList.remove('active');
+    });
+  });
+</script>

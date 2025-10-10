@@ -6,7 +6,7 @@
       <div class="axis-label label-left">Niche</div>
       <div class="axis-label label-right">Popular</div>
       
-      <svg viewBox="0 0 560 500" class="chart-svg">
+      <svg viewBox="0 0 560 500" class="chart-svg" preserveAspectRatio="xMidYMid meet">
         <!-- Grid lines -->
         <line
           v-for="i in 7"
@@ -382,12 +382,19 @@ export default {
 </script>
 
 <style scoped>
+.chart-container {
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  overflow: visible;
+}
 
 .chart-wrapper {
   position: relative;
-  width: 560px;
-  height: 500px;
+  width: 100%;
+  aspect-ratio: 560 / 500;
   border-radius: 10px;
+  overflow: visible;
 }
 
 .axis-label {
@@ -397,6 +404,7 @@ export default {
   color: #fbbf24;
   padding: 4px 8px;
   border-radius: 4px;
+  white-space: nowrap;
 }
 
 .label-top {
@@ -413,13 +421,13 @@ export default {
 
 .label-left {
   top: 50%;
-  left: -15px;
+  left: -5px;
   transform: translateY(-50%);
 }
 
 .label-right {
   top: 50%;
-  right: -30px;
+  right: -20px;
   transform: translateY(-50%);
 }
 
@@ -485,5 +493,28 @@ export default {
 
 .tooltip-stat {
   margin: 3px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .axis-label {
+    font-size: 16px;
+    padding: 2px 6px;
+  }
+  
+  .hero-dot-text {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .axis-label {
+    font-size: 14px;
+    padding: 2px 4px;
+  }
+  
+  .hero-dot-text {
+    font-size: 9px;
+  }
 }
 </style>
