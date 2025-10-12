@@ -11,6 +11,14 @@ const queryString = searchParams.toString();
 
 const response = await fetch('http://localhost:8080/overwatch?' + queryString);
 const data = await response.json();
+const params = {
+  role: searchParams.get("role"),
+  input: searchParams.get("input"),
+  gameMode: searchParams.get("queue"),
+  rankTier: searchParams.get("rank"),
+  map: searchParams.get("map"),
+  region: searchParams.get("region")
+}
 ---
 
 <Layout title="MetaTrack" logo={OWLogo.src}>
@@ -25,7 +33,7 @@ const data = await response.json();
     <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
     
     <div id="filters-container" class="container">
-      <CompassFilters id="filters" client:load/>
+      <CompassFilters id="filters" queryParams={params} client:load/>
     </div>
 
     <div id="filters-modal" class="modal">
@@ -40,7 +48,7 @@ const data = await response.json();
           </button>
         </div>
         <div class="modal-body">
-          <CompassFilters id="filters-modal-content" client:load/>
+          <CompassFilters id="filters-modal-content" queryParams={params} client:load/>
         </div>
       </div>
     </div>

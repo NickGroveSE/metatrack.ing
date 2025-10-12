@@ -109,15 +109,18 @@
 <script>
 export default {
   name: 'OverwatchFilters',
+  props: {
+    queryParams: Object,
+  },
   data() {
     return {
       filters: {
-        role: 'Support',
-        input: 'PC',
-        gameMode: '1',
-        rankTier: 'All', // Default rank tier
-        map: 'all-maps',
-        region: 'Americas'
+        role: this.queryParams.role,
+        input: this.queryParams.input,
+        gameMode: this.queryParams.gameMode,
+        rankTier: this.queryParams.rankTier, // Default rank tier
+        map: this.queryParams.map,
+        region: this.queryParams.region
       }
     }
   },
