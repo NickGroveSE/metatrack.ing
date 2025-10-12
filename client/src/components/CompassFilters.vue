@@ -6,7 +6,7 @@
         <option value="Tank">Tank</option>
         <option value="Damage">Damage</option>
         <option value="Support">Support</option>
-        <option value="Custom">Custom</option>
+        <!-- <option value="Custom">Custom</option> -->
       </select>
     </div>
 

@@ -46,6 +46,7 @@
         <!-- Data points -->
         <g v-for="(hero, i) in data" :key="hero.Name">
           <text
+            v-if="tooltip.pinnedHero !== hero.Name && (tooltip.pinned || hoveredHero !== hero.Name)"
             :x="getLabelPosition(hero, i).x"
             :y="getLabelPosition(hero, i).y"
             text-anchor="middle"
@@ -87,8 +88,8 @@
         v-if="tooltip.show"
         class="tooltip"
         :style="{
-          left: `${tooltip.x + 15}px`,
-          top: `${tooltip.y - 15}px`
+          left: `${tooltip.x + 5}px`,
+          top: `${tooltip.y - 5}px`
         }"
       >
         <button 
