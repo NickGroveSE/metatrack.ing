@@ -5,7 +5,11 @@ import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const response = await fetch('http://localhost:8080/overwatch?queue=1&role=Support&region=Americas&input=PC&rank=All&map=all-maps');
+const { searchParams } = Astro.url;
+
+const queryString = searchParams.toString();
+
+const response = await fetch('http://localhost:8080/overwatch?' + queryString);
 const data = await response.json();
 ---
 
@@ -192,6 +196,10 @@ const data = await response.json();
       display: block;
       width: 100%;
     }
+
+    #compass {
+      margin-right: auto;
+    }
   }
 
   @media (max-width: 640px) {
@@ -254,8 +262,29 @@ const data = await response.json();
     
     if (filters.gameMode == "1") {
       response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
+      
+      const newParams = new URLSearchParams(window.location.search);
+      newParams.set('queue', filters.gameMode)
+      newParams.set('role', filters.role)
+      newParams.set('region', filters.region)
+      newParams.set('input', filters.input)
+      newParams.set('rank', filters.rankTier)
+      newParams.set('map', filters.map)
+
+      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+      window.history.pushState({}, '', newUrl);
     } else {
       response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&map="+filters.map);
+
+      const newParams = new URLSearchParams(window.location.search);
+      newParams.set('queue', filters.gameMode)
+      newParams.set('role', filters.role)
+      newParams.set('region', filters.region)
+      newParams.set('input', filters.input)
+      newParams.set('map', filters.map)
+
+      const newUrl = `${window.location.pathname}?${newParams.toString()}`;
+      window.history.pushState({}, '', newUrl);
     }
     
     const data = await response.json();
