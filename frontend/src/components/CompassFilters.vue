@@ -22,12 +22,12 @@
       <label class="filter-label">Game Mode</label>
       <select v-model="filters.gameMode" class="filter-select" @change="onGameModeChange">
         <option value="0">Quick Play</option>
-        <option value="1">Competitive</option>
+        <option value="2">Competitive</option>
       </select>
     </div>
 
     <!-- Conditional Rank Tier Dropdown -->
-    <div v-if="filters.gameMode === '1'" class="filter-group">
+    <div v-if="filters.gameMode === '2'" class="filter-group">
       <label class="filter-label">Rank Tier</label>
       <select v-model="filters.rankTier" class="filter-select">
         <option value="All">All Ranks</option>
@@ -50,7 +50,7 @@
           <option value="throne-of-anubis">Throne of Anubis</option>
         </optgroup>
         <optgroup label="Control">
-          <option value="antartic-peninsula">Antartic Peninsula</option>
+          <option value="antarctic-peninsula">Antarctic Peninsula</option>
           <option value="busan">Busan</option>
           <option value="ilios">Ilios</option>
           <option value="lijang-tower">Lijang Tower</option>

@@ -9,7 +9,9 @@ const { searchParams } = Astro.url;
 
 const queryString = searchParams.toString();
 
-const response = await fetch('http://backend:8080/overwatch?' + queryString);
+const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
+
+const response = await fetch(backendUrl + '/overwatch?' + queryString);
 const data = await response.json();
 const params = {
   role: searchParams.get("role"),
@@ -267,10 +269,14 @@ const params = {
   window.handleFilters = async (filters) => {
     console.log('Filters applied:', filters.gameMode);
 
+    const backendUrl = window.location.hostname.includes('render.com') 
+  ? 'https://metatracking-backend.onrender.com'
+  : 'http://localhost:8080';
+
     var response = new Response()
     
-    if (filters.gameMode == "1") {
-      response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
+    if (filters.gameMode == "2") {
+      response = await fetch(`${backendUrl}/overwatch?queue=`+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
       
       const newParams = new URLSearchParams(window.location.search);
       newParams.set('queue', filters.gameMode)
@@ -283,7 +289,7 @@ const params = {
       const newUrl = `${window.location.pathname}?${newParams.toString()}`;
       window.history.pushState({}, '', newUrl);
     } else {
-      response = await fetch("http://localhost:8080/overwatch?queue="+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&map="+filters.map);
+      response = await fetch(`${backendUrl}/overwatch?queue=`+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&map="+filters.map);
 
       const newParams = new URLSearchParams(window.location.search);
       newParams.set('queue', filters.gameMode)
