@@ -9,6 +9,8 @@ const { searchParams } = Astro.url;
 
 const queryString = searchParams.toString();
 
+console.log(import.meta.env.BACKEND_URL)
+
 const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
 
 const response = await fetch(backendUrl + '/overwatch?' + queryString);
@@ -269,8 +271,8 @@ const params = {
   window.handleFilters = async (filters) => {
     console.log('Filters applied:', filters.gameMode);
 
-    const backendUrl = window.location.hostname.includes('render.com') 
-  ? 'https://metatracking-backend.onrender.com'
+    const backendUrl = window.location.hostname.includes('.ing') 
+  ? 'https://api.metatrack.ing'
   : 'http://localhost:8080';
 
     var response = new Response()
