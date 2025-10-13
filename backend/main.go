@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NickGroveSE/metatrack.ing/server/models"
-	"github.com/NickGroveSE/metatrack.ing/server/scrape"
+	"github.com/NickGroveSE/metatrack.ing/backend/models"
+	"github.com/NickGroveSE/metatrack.ing/backend/scrape"
 )
 
 type HealthResponse struct {
@@ -81,7 +81,7 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Register handler
-	http.HandleFunc("/", healthHandler)
+	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/overwatch", owDataHandler)
 
 	// Server configuration

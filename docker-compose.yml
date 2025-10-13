@@ -1,0 +1,62 @@
+# docker-compose.yml
+# Place this file in your project root directory
+
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: overwatch-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - GO_ENV=production
+      # Add any other environment variables your backend needs
+    networks:
+      - app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: overwatch-frontend
+    ports:
+      - "4321:4321"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # PostgreSQL (commented out for initial deployment)
+  # Uncomment when you're ready to add database functionality
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: overwatch-db
+  #   environment:
+  #     POSTGRES_USER: youruser
+  #     POSTGRES_PASSWORD: yourpassword
+  #     POSTGRES_DB: overwatch_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   networks:
+  #     - app-network
+  #   restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+# volumes:
+#   postgres-data:

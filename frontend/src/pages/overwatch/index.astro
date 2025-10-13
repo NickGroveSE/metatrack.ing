@@ -9,7 +9,7 @@ const { searchParams } = Astro.url;
 
 const queryString = searchParams.toString();
 
-const response = await fetch('http://localhost:8080/overwatch?' + queryString);
+const response = await fetch('http://backend:8080/overwatch?' + queryString);
 const data = await response.json();
 const params = {
   role: searchParams.get("role"),
