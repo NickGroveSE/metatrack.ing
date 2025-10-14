@@ -5,24 +5,30 @@ import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const { searchParams } = Astro.url;
+const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
+console.log('BACKEND_URL env var:', import.meta.env.BACKEND_URL);
+console.log('Using backend URL:', backendUrl);
 
+const { searchParams } = Astro.url;
 const queryString = searchParams.toString();
 
-console.log(import.meta.env.BACKEND_URL)
-
-const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
-
-const response = await fetch(`${backendUrl}/overwatch?${queryString}`);
-const data = await response.json();
-const params = {
-  role: searchParams.get("role"),
-  input: searchParams.get("input"),
-  gameMode: searchParams.get("queue"),
-  rankTier: searchParams.get("rank"),
-  map: searchParams.get("map"),
-  region: searchParams.get("region")
+console.log('Fetching from:', `${backendUrl}/overwatch?${queryString}`);
+var response = new Response
+try {
+  response = await fetch(`${backendUrl}/overwatch?${queryString}`);
+} catch(error){
+  console.log(error)
 }
+  const data = await response.json();
+  const params = {
+    role: searchParams.get("role"),
+    input: searchParams.get("input"),
+    gameMode: searchParams.get("queue"),
+    rankTier: searchParams.get("rank"),
+    map: searchParams.get("map"),
+    region: searchParams.get("region")
+  }
+
 ---
 
 <Layout title="MetaTrack" logo={OWLogo.src}>
