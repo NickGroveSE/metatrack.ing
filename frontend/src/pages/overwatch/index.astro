@@ -5,17 +5,15 @@ import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
-console.log('BACKEND_URL env var:', import.meta.env.BACKEND_URL);
+const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://backend:8080';
 console.log('Using backend URL:', backendUrl);
 
 const { searchParams } = Astro.url;
 const queryString = searchParams.toString();
-
-console.log('Fetching from:', `${backendUrl}/overwatch?${queryString}`);
 var response = new Response
 try {
   response = await fetch(`${backendUrl}/overwatch?${queryString}`);
+  
 } catch(error){
   console.log(error)
 }
