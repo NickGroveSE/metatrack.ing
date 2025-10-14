@@ -13,7 +13,7 @@ console.log(import.meta.env.BACKEND_URL)
 
 const backendUrl = import.meta.env.BACKEND_URL || 'http://backend:8080';
 
-const response = await fetch(backendUrl + '/overwatch?' + queryString);
+const response = await fetch(`${backendUrl}/overwatch?${queryString}`);
 const data = await response.json();
 const params = {
   role: searchParams.get("role"),
