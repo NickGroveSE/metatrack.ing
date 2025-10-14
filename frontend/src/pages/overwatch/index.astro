@@ -5,7 +5,8 @@ import CompassFilters from '../../components/CompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
 
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL || 'http://backend:8080';
+// Use process.env for server-side runtime variable
+const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
 console.log('Using backend URL:', backendUrl);
 
 const { searchParams } = Astro.url;

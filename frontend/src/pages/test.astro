@@ -1,11 +1,10 @@
 ---
-const backendUrl = import.meta.env.PUBLIC_BACKEND_URL;
+const backendUrl = process.env.BACKEND_URL;
 ---
 
 <html>
 <body>
   <h1>Environment Test</h1>
-  <p>PUBLIC_BACKEND_URL: {backendUrl || 'NOT SET'}</p>
-  <p>All env vars: {JSON.stringify(import.meta.env)}</p>
+  <p>BACKEND_URL: {backendUrl || 'NOT SET'}</p>
 </body>
 </html>
