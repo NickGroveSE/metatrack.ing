@@ -31,7 +31,7 @@ const { title, logo } = Astro.props;
             <!-- <a href="/mtg">Magic: The Gathering</a> -->
           </div>
         </div>
-        <a href="/about"><div class="nav-button">About</div></a>
+        <!-- <a href="/about"><div class="nav-button">About</div></a> -->
       </div>
       <button id="hamburger" aria-label="Toggle menu">
         <span></span>
@@ -41,14 +41,14 @@ const { title, logo } = Astro.props;
     </header>
     
     <div id="mobile-sidebar">
-      <a href="/donate" class="mobile-nav-item">Support Our Work</a>
+      <a href="/donate" class="mobile-nav-item">Donate</a>
       <div class="mobile-dropdown">
         <div class="mobile-nav-item mobile-dropdown-trigger">Games</div>
         <div class="mobile-dropdown-content">
           <a href="/overwatch?queue=2&role=Support&region=Americas&input=PC&rank=All&map=all-maps">Overwatch</a>
         </div>
       </div>
-      <a href="/about" class="mobile-nav-item">About</a>
+      <!-- <a href="/about" class="mobile-nav-item">About</a> -->
     </div>
     
     <div id="overlay"></div>
@@ -320,11 +320,11 @@ const { title, logo } = Astro.props;
 
   @media (max-width: 480px) {
     h1 {
-      font-size: 1rem;
+      font-size: 1.2rem;
     }
 
     #logo {
-      height: 40px;
+      height: 50px;
     }
   }
 </style>

@@ -41,7 +41,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 
 func owDataHandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	if origin := r.Header.Get("Origin"); origin == "http://localhost:4321" || origin == "https://metatracking-frontend.onrender.com" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
 	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 

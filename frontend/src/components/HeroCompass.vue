@@ -588,9 +588,9 @@ export default {
     padding: 2px 6px;
   }
   
-  .hero-dot-text {
+  /* .hero-dot-text {
     font-size: 10px;
-  }
+  } */
 }
 
 @media (max-width: 480px) {
@@ -599,8 +599,8 @@ export default {
     padding: 2px 4px;
   }
   
-  .hero-dot-text {
+  /* .hero-dot-text {
     font-size: 9px;
-  }
+  } */
 }
 </style>
