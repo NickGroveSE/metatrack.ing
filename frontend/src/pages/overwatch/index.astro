@@ -282,7 +282,7 @@ try {
 
     var response = new Response()
     
-    if (filters.gameMode == "2") {
+    if (filters.gameMode !== "0") {
       response = await fetch(`${backendUrl}/overwatch?queue=`+filters.gameMode+"&role="+filters.role+"&region="+filters.region+"&input="+filters.input+"&rank="+filters.rankTier+"&map="+filters.map);
       
       const newParams = new URLSearchParams(window.location.search);
