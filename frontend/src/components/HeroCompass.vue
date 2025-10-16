@@ -242,6 +242,8 @@ export default {
              (this.paddedMaxWinRate - this.paddedMinWinRate) * this.height;
     },
     calculateLabelPositions() {
+      this.labelPositions = [];
+
       const positions = [];
       const labelHeight = 16; // Approximate height of label with padding
       

@@ -18,15 +18,15 @@ try {
 } catch(error){
   console.log(error)
 }
-  const data = await response.json();
-  const params = {
-    role: searchParams.get("role"),
-    input: searchParams.get("input"),
-    gameMode: searchParams.get("queue"),
-    rankTier: searchParams.get("rank"),
-    map: searchParams.get("map"),
-    region: searchParams.get("region")
-  }
+const data = await response.json();
+const params = {
+  role: searchParams.get("role"),
+  input: searchParams.get("input"),
+  gameMode: searchParams.get("queue"),
+  rankTier: searchParams.get("rank"),
+  map: searchParams.get("map"),
+  region: searchParams.get("region")
+}
 
 ---
 

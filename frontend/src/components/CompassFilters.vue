@@ -110,7 +110,7 @@
 export default {
   name: 'OverwatchFilters',
   props: {
-    queryParams: Object,
+    queryParams: Object
   },
   data() {
     return {
