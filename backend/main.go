@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -77,6 +78,12 @@ func rateLimitMiddleware(limiter *IPRateLimiter) func(http.Handler) http.Handler
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Extract IP address - check common proxy headers first
 			ip := r.Header.Get("X-Forwarded-For")
+			if ip != "" {
+				// X-Forwarded-For can contain multiple IPs: "client, proxy1, proxy2"
+				// We want the first one (the real client IP)
+				ips := strings.Split(ip, ",")
+				ip = strings.TrimSpace(ips[0])
+			}
 			if ip == "" {
 				ip = r.Header.Get("X-Real-IP")
 			}
