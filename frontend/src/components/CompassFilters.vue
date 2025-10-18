@@ -21,8 +21,8 @@
     <div class="filter-group">
       <label class="filter-label">Game Mode</label>
       <select v-model="filters.gameMode" class="filter-select" @change="onGameModeChange">
-        <option value="0">Quick Play</option>
-        <option value="1">Competitive</option>
+        <option value="0">Quick Play - Role Queue</option>
+        <option value="2">Competitive - Role Queue</option>
       </select>
     </div>
 
