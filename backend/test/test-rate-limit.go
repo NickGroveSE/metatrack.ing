@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	url := "http://localhost:8080/health"
+	url := "https://api.metatrack.ing/health"
 	totalRequests := 30
 
 	fmt.Printf("Sending %d requests to %s...\n\n", totalRequests, url)
