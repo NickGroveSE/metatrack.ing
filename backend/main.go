@@ -75,15 +75,26 @@ func (i *IPRateLimiter) CleanupStale(interval time.Duration) {
 func rateLimitMiddleware(limiter *IPRateLimiter) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Extract IP address
-			ip, _, err := net.SplitHostPort(r.RemoteAddr)
-			if err != nil {
-				ip = r.RemoteAddr // Fallback to full address
+			// Extract IP address - check common proxy headers first
+			ip := r.Header.Get("X-Forwarded-For")
+			if ip == "" {
+				ip = r.Header.Get("X-Real-IP")
 			}
+			if ip == "" {
+				var err error
+				ip, _, err = net.SplitHostPort(r.RemoteAddr)
+				if err != nil {
+					ip = r.RemoteAddr
+				}
+			}
+
+			// Log the IP for debugging
+			log.Printf("Request from IP: %s to %s", ip, r.URL.Path)
 
 			// Check rate limit
 			l := limiter.GetLimiter(ip)
 			if !l.Allow() {
+				log.Printf("Rate limit exceeded for IP: %s", ip)
 				http.Error(w, "Too Many Requests - Please slow down", http.StatusTooManyRequests)
 				return
 			}
