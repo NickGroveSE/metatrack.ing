@@ -3,17 +3,94 @@ package main
 import (
 	"encoding/json"
 	"log"
+	"net"
 	"net/http"
+	"sync"
 	"time"
 
 	"github.com/NickGroveSE/metatrack.ing/backend/models"
 	"github.com/NickGroveSE/metatrack.ing/backend/scrape"
+	"golang.org/x/time/rate"
 )
 
 type HealthResponse struct {
 	Status    string    `json:"status"`
 	Timestamp time.Time `json:"timestamp"`
 	Message   string    `json:"message"`
+}
+
+// IPRateLimiter manages rate limiters for each IP
+type IPRateLimiter struct {
+	ips map[string]*rate.Limiter
+	mu  *sync.RWMutex
+	r   rate.Limit
+	b   int
+}
+
+func NewIPRateLimiter(r rate.Limit, b int) *IPRateLimiter {
+	limiter := &IPRateLimiter{
+		ips: make(map[string]*rate.Limiter),
+		mu:  &sync.RWMutex{},
+		r:   r,
+		b:   b,
+	}
+	// Start cleanup routine
+	limiter.CleanupStale(5 * time.Minute)
+	return limiter
+}
+
+func (i *IPRateLimiter) AddIP(ip string) *rate.Limiter {
+	i.mu.Lock()
+	defer i.mu.Unlock()
+
+	limiter := rate.NewLimiter(i.r, i.b)
+	i.ips[ip] = limiter
+	return limiter
+}
+
+func (i *IPRateLimiter) GetLimiter(ip string) *rate.Limiter {
+	i.mu.Lock()
+	limiter, exists := i.ips[ip]
+	if !exists {
+		i.mu.Unlock()
+		return i.AddIP(ip)
+	}
+	i.mu.Unlock()
+	return limiter
+}
+
+// Cleanup old limiters periodically to prevent memory leaks
+func (i *IPRateLimiter) CleanupStale(interval time.Duration) {
+	ticker := time.NewTicker(interval)
+	go func() {
+		for range ticker.C {
+			i.mu.Lock()
+			i.ips = make(map[string]*rate.Limiter)
+			i.mu.Unlock()
+		}
+	}()
+}
+
+// rateLimitMiddleware wraps handlers with rate limiting
+func rateLimitMiddleware(limiter *IPRateLimiter) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Extract IP address
+			ip, _, err := net.SplitHostPort(r.RemoteAddr)
+			if err != nil {
+				ip = r.RemoteAddr // Fallback to full address
+			}
+
+			// Check rate limit
+			l := limiter.GetLimiter(ip)
+			if !l.Allow() {
+				http.Error(w, "Too Many Requests - Please slow down", http.StatusTooManyRequests)
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,16 +158,25 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Register handler
-	http.HandleFunc("/health", healthHandler)
-	http.HandleFunc("/overwatch", owDataHandler)
+	// Create rate limiter: 10 requests per second per IP, burst of 20
+	limiter := NewIPRateLimiter(10, 20)
+
+	// Create a new mux
+	mux := http.NewServeMux()
+
+	// Register handlers
+	mux.HandleFunc("/health", healthHandler)
+	mux.HandleFunc("/overwatch", owDataHandler)
+
+	// Wrap mux with rate limiting middleware
+	handler := rateLimitMiddleware(limiter)(mux)
 
 	// Server configuration
 	port := ":8080"
-	log.Printf("Starting server on port %s", port)
+	log.Printf("Starting server on port %s with rate limiting enabled", port)
 
 	// Start server
-	if err := http.ListenAndServe(port, nil); err != nil {
+	if err := http.ListenAndServe(port, handler); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
