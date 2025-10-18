@@ -95,9 +95,6 @@ func rateLimitMiddleware(limiter *IPRateLimiter) func(http.Handler) http.Handler
 				}
 			}
 
-			// Log the IP for debugging
-			log.Printf("Request from IP: %s to %s", ip, r.URL.Path)
-
 			// Check rate limit
 			l := limiter.GetLimiter(ip)
 			if !l.Allow() {
