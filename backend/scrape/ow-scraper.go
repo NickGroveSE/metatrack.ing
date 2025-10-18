@@ -24,7 +24,7 @@ func Scrape(input string, owmap string, region string, role string, queue string
 	var indexes []int
 
 	requestLink := "https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank
-	fmt.Println(requestLink)
+	fmt.Println("Request Sent: ", requestLink)
 
 	res, err := http.Get("https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank)
 	if err != nil {

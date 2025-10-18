@@ -56,7 +56,6 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 
 	input := queryParams.Get("input")
-	log.Println(input)
 	owmap := queryParams.Get("map")
 	region := queryParams.Get("region")
 	role := queryParams.Get("role")
