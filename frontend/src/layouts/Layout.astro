@@ -1,6 +1,9 @@
 ---
 import type { SvgComponent } from 'astro/types';
 
+import GithubInvertocatLight from '../assets/GitHub_Invertocat_Light.svg';
+import GithubLockupLight from '../assets/GitHub_Lockup_Light.svg';
+
 export interface Props {
   title: string;
   logo: string;
@@ -31,6 +34,7 @@ const { title, logo } = Astro.props;
             <!-- <a href="/mtg">Magic: The Gathering</a> -->
           </div>
         </div>
+        <a href="https://github.com/NickGroveSE/metatrack.ing"><img src={GithubInvertocatLight.src} class="nav-img"/></a>
         <!-- <a href="/about"><div class="nav-button">About</div></a> -->
       </div>
       <button id="hamburger" aria-label="Toggle menu">
@@ -48,6 +52,7 @@ const { title, logo } = Astro.props;
           <a href="/overwatch?queue=0&role=Support&region=Americas&input=PC&rank=All&map=all-maps">Overwatch</a>
         </div>
       </div>
+      <a href="https://github.com/NickGroveSE/metatrack.ing"><img src={GithubLockupLight.src} class="mobile-nav-img"/></a>
       <!-- <a href="/about" class="mobile-nav-item">About</a> -->
     </div>
     
@@ -121,6 +126,13 @@ const { title, logo } = Astro.props;
     cursor: pointer;
     color: #fbbf24;
     font-size: 18px;
+  }
+
+  .nav-img {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    padding: 18px 10px;
+    height: 75px;
   }
 
   .nav-button:hover {
@@ -236,6 +248,12 @@ const { title, logo } = Astro.props;
     border-bottom: 1px solid #374151;
     cursor: pointer;
     transition: background-color 0.3s ease;
+  }
+
+  .mobile-nav-img {
+    display: block;
+    padding: 20px 30px;
+    height: 65px;
   }
 
   .mobile-nav-item:hover {
