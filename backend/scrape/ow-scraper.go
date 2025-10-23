@@ -24,20 +24,83 @@ func Scrape(input string, owmap string, region string, role string, queue string
 	var indexes []int
 
 	requestLink := "https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank
-	fmt.Println("Request Sent: ", requestLink)
-
-	res, err := http.Get("https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=" + queue + "&tier=" + rank)
+	res, err := http.Get(requestLink)
 	if err != nil {
 		log.Fatalf("Error making GET request: %v", err)
 	}
 	defer res.Body.Close() // Always close the response body
 
-	// Parse the HTML
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		fmt.Println("Error parsing HTML:", err)
-		return heroes
 	}
+
+	switch queue {
+	case "0":
+		fmt.Println("QP, Validation Bypassed.....")
+		fmt.Println("Sent Request: ", requestLink)
+	case "1":
+		fmt.Println("Comp, Validating Param Value 1.....")
+		doc.Find("#filter-rq-select").Each(func(i int, s *goquery.Selection) {
+			s.Find(".blz-subheading-text-lg[selected]").Each(func(j int, opt *goquery.Selection) {
+				// Get the text content of the selected element
+				text := opt.Text()
+				if strings.Contains(text, "Quick Play") {
+					fmt.Println("Param Value 1 is Incorrect, Building New Request.....")
+					requestLink = "https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=2&tier=" + rank
+					pvRes, err := http.Get(requestLink)
+					if err != nil {
+						log.Fatalf("Error making Comp GET request after a failed Validation of 1: %v", err)
+					}
+					defer pvRes.Body.Close()
+
+					doc, err = goquery.NewDocumentFromReader(pvRes.Body)
+					if err != nil {
+						fmt.Println("Error parsing HTML:", err)
+					}
+					fmt.Println("Sent Request: ", requestLink)
+				} else {
+					fmt.Println("Validation of Param Value 1 Passed")
+					fmt.Println("Sent Request: ", requestLink)
+				}
+			})
+		})
+	case "2":
+		fmt.Println("Comp, Validating Param Value 2.....")
+		doc.Find("#filter-rq-select").Each(func(i int, s *goquery.Selection) {
+			s.Find(".blz-subheading-text-lg[selected]").Each(func(j int, opt *goquery.Selection) {
+				// Get the text content of the selected element
+				text := opt.Text()
+				if strings.Contains(text, "Quick Play") {
+					fmt.Println("Param Value 2 is Incorrect, Building New Request.....")
+					requestLink = "https://overwatch.blizzard.com/en-us/rates/?input=" + input + "&map=" + owmap + "&region=" + region + "&role=All&rq=1&tier=" + rank
+					pvRes, err := http.Get(requestLink)
+					if err != nil {
+						log.Fatalf("Error making Comp GET request after a failed Validation of 2: %v", err)
+					}
+					defer pvRes.Body.Close()
+
+					doc, err = goquery.NewDocumentFromReader(pvRes.Body)
+					if err != nil {
+						fmt.Println("Error parsing HTML:", err)
+					}
+					fmt.Println("Sent Request: ", requestLink)
+				} else {
+					fmt.Println("Validation of Param Value 2 Passed")
+					fmt.Println("Sent Request: ", requestLink)
+				}
+			})
+		})
+	default:
+		fmt.Println("You Shouldn't Be Here")
+	}
+
+	// Parse the HTML
+	// doc, err := goquery.NewDocumentFromReader(res.Body)
+	// if err != nil {
+	// 	fmt.Println("Error parsing HTML:", err)
+	// 	return heroes
+	// }
 
 	if role != "All" {
 		doc.Find(".hero-role-icon").Each(func(iconIndex int, iconElement *goquery.Selection) {
