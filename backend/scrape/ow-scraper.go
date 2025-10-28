@@ -92,7 +92,8 @@ func Scrape(input string, owmap string, region string, role string, queue string
 			})
 		})
 	default:
-		fmt.Println("You Shouldn't Be Here")
+		fmt.Println("You Shouldn't Be Here: Queue Param " + queue)
+
 	}
 
 	// Parse the HTML
