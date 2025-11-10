@@ -3,6 +3,8 @@ import type { SvgComponent } from 'astro/types';
 
 import GithubInvertocatLight from '../assets/GitHub_Invertocat_Light.svg';
 import GithubLockupLight from '../assets/GitHub_Lockup_Light.svg';
+import DiscordSymbolBlurple from '../assets/Discord-Symbol-Blurple.svg'
+import DiscordLogoBlurple from '../assets/Discord-Logo-Blurple.svg'
 
 export interface Props {
   title: string;
@@ -35,6 +37,7 @@ const { title, logo } = Astro.props;
           </div>
         </div>
         <a href="https://github.com/NickGroveSE/metatrack.ing"><img src={GithubInvertocatLight.src} class="nav-img"/></a>
+        <a href="https://discord.gg/nhpjrx4P"><img src={DiscordSymbolBlurple.src} class="nav-img"/></a>
         <!-- <a href="/about"><div class="nav-button">About</div></a> -->
       </div>
       <button id="hamburger" aria-label="Toggle menu">
@@ -53,6 +56,7 @@ const { title, logo } = Astro.props;
         </div>
       </div>
       <a href="https://github.com/NickGroveSE/metatrack.ing"><img src={GithubLockupLight.src} class="mobile-nav-img"/></a>
+      <a href="https://discord.gg/nhpjrx4P"><img src={DiscordLogoBlurple.src} class="mobile-nav-img"/></a>
       <!-- <a href="/about" class="mobile-nav-item">About</a> -->
     </div>
     
