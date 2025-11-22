@@ -1,5 +1,26 @@
-### API Calls
+### Structure
 
+Frontend will include a "Single Hero & Combos" tab & a "Matchups" tab
+
+DLDefaultAPIHandler() {
+    call active heroes
+    call hero stats
+    assign colors
+}
+
+activeHeroes() {
+    fetch active heroes
+}
+
+heroStats() {
+    fetch hero stats
+    use active heroes to filter heroes
+    calculate win rates
+    calculate pick rates
+}
+
+
+### API Calls
 
 https://api.deadlock-api.com/v1/analytics/hero-stats?min_unix_timestamp=1761350091&max_unix_timestamp=1763769599&min_average_badge=91&max_average_badge=116&min_hero_matches=0&min_hero_matches_total=0
 - divide wins by matches for win rate
@@ -7,6 +28,9 @@ https://api.deadlock-api.com/v1/analytics/hero-stats?min_unix_timestamp=17613500
 
 https://assets.deadlock-api.com/v2/heroes?only_active=true
 - receive ids of active heroes
+
+
+### Color Assignment
 
 heroColors := map[string]int{
     "1" : "#F80700", // Infernus
