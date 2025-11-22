@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/NickGroveSE/metatrack.ing/backend/models"
-	"github.com/NickGroveSE/metatrack.ing/backend/scrape"
+	"github.com/NickGroveSE/metatrack.ing/backend/services"
 	"golang.org/x/time/rate"
 )
 
@@ -154,7 +154,7 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 	queue := queryParams.Get("queue")
 	rank := queryParams.Get("rank")
 
-	var data []models.OWHero = scrape.Scrape(input, owmap, region, role, queue, rank)
+	var data []models.OWHero = services.OWDefaultScrape(input, owmap, region, role, queue, rank)
 
 	response := models.OWDataResponse{
 		Status:    "success",

@@ -1,4 +1,4 @@
-package scrape
+package services
 
 import (
 	"fmt"
@@ -14,11 +14,11 @@ import (
 
 func main() {
 
-	Scrape("PC", "all-maps", "Americas", "Support", "1", "All")
+	OWDefaultScrape("PC", "all-maps", "Americas", "Support", "1", "All")
 
 }
 
-func Scrape(input string, owmap string, region string, role string, queue string, rank string) []models.OWHero {
+func OWDefaultScrape(input string, owmap string, region string, role string, queue string, rank string) []models.OWHero {
 
 	var heroes []models.OWHero
 	var indexes []int

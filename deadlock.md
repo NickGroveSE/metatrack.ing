@@ -7,3 +7,40 @@ https://api.deadlock-api.com/v1/analytics/hero-stats?min_unix_timestamp=17613500
 
 https://assets.deadlock-api.com/v2/heroes?only_active=true
 - receive ids of active heroes
+
+heroColors := map[string]int{
+    "1" : "#F80700", // Infernus
+    "2" : "#F4E80B", // Seven
+    "3" : "#8AA6F6", // Vindicta
+    "4" : "#1AC78D", // Lady Geist
+    "6" : "#43A0B3", // Abrams
+    "7" : "#8D2C7A", // Wraith
+    "8" : "#295A9D", // McGinnis
+    "10" : "#FD99B6", // Paradox
+    "11" : "#798BA9", // Dynamo
+    "12" : "#C76F58", // Kelvin
+    "13" : "#B36635", // Haze
+    "14" : "#E85835", // Holliday
+    "15" : "#6DF5BE", // Bebop
+    "16" : "#F0D870", // Calico
+    "17" : "#6A8552", // Grey Talon
+    "18" : "#634F44", // Mo & Krill
+    "19" : "#8B2229", // Shiv
+    "20" : "#753B2A", // Ivy
+    "25" : "#4B5467", // Warden
+    "27" : "#8E7BAA", // Yamato
+    "31" : "#145EE3", // Lash
+    "35" : "#34892D", // Viscous
+    "50" : "#6A4245", // Pocket
+    "52" : "#9B7351", // Mirage
+    "58" : "#73B740", // Vyper
+    "60" : "#857FBD", // Sinclair
+    "63" : "#B01A1C", // Mina
+    "64" : "#A81010", // Drifter
+    "66" : "#8C8B82", // Victor
+    "67" : "#939E30", // Paige
+    "69" : "#7C495A", // The Doorman
+    "72" : "#E21EC7" // Billy
+}
+
+"" : "", //
