@@ -12,11 +12,11 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-func main() {
+// func main() {
 
-	OWDefaultScrape("PC", "all-maps", "Americas", "Support", "1", "All")
+// 	OWDefaultScrape("PC", "all-maps", "Americas", "Support", "1", "All")
 
-}
+// }
 
 func OWDefaultScrape(input string, owmap string, region string, role string, queue string, rank string) []models.OWHero {
 
@@ -28,7 +28,7 @@ func OWDefaultScrape(input string, owmap string, region string, role string, que
 	if err != nil {
 		log.Fatalf("Error making GET request: %v", err)
 	}
-	defer res.Body.Close() // Always close the response body
+	defer res.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {

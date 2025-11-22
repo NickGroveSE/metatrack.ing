@@ -2,7 +2,9 @@
 
 Frontend will include a "Single Hero & Combos" tab & a "Matchups" tab
 
-DLDefaultAPIHandler() {
+Rank filters with our combinations in the hero panel may be tricky
+
+DLSHOCHandler() {
     call active heroes
     call hero stats
     assign colors

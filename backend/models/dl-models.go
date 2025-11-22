@@ -3,13 +3,13 @@ package models
 import "time"
 
 type DLHero struct {
-	ID    string
-	Name  string
-	Image string
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Image string `json:"minimap_image_webp"`
 }
 
 type DLSHOCEntity struct {
-	IDs      []string
+	IDs      []int
 	Names    []string
 	Color    []string
 	Images   []string
