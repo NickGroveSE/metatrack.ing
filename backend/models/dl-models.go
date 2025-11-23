@@ -3,22 +3,26 @@ package models
 import "time"
 
 type DLHero struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Image string `json:"minimap_image_webp"`
+	ID    int32
+	Name  string
+	Image string
+	Color string
 }
 
-type DLSHOCEntity struct {
-	IDs      []int
-	Names    []string
-	Color    []string
-	Images   []string
+type DLHeroStats struct {
+	Wins     int64
+	Matches  int64
 	PickRate float32
 	WinRate  float32
 }
 
-type DLSHOCResponse struct {
+type DLHeroEntity struct {
+	Heroes []DLHero
+	Stats  DLHeroStats
+}
+
+type DLDataResponse struct {
 	Status    string         `json:"status"`
 	Timestamp time.Time      `json:"timestamp"`
-	Data      []DLSHOCEntity `json:"data"`
+	Data      []DLHeroEntity `json:"data"`
 }

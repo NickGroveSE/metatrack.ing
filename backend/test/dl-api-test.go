@@ -20,8 +20,6 @@ import (
 	deadlock_assets_api "github.com/deadlock-api/openapi-clients/go/assets-api"
 )
 
-// const activeHeroRequest = "https://assets.deadlock-api.com/v2/heroes?only_active=true"
-
 type DLHero struct {
 	ID    int32
 	Name  string
@@ -76,11 +74,11 @@ var DLHeroColors = map[int32]string{
 	72: "#E21EC7", // Billy
 }
 
-func main() {
+// func main() {
 
-	DLSingleHeroHandler()
+// 	DLSingleHeroHandler()
 
-}
+// }
 
 func DLSingleHeroHandler() {
 

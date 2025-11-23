@@ -172,6 +172,37 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func dlDataHandler(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin == "http://localhost:4321" || origin == "https://metatrack.ing" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Only allow GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var data []models.DLHeroEntity = services.DLSingleHeroHandler()
+
+	response := models.DLDataResponse{
+		Status:    "success",
+		Timestamp: time.Now(),
+		Data:      data,
+	}
+
+	// Set content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Encode and send response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
+
 func main() {
 	// Create rate limiter: 10 requests per second per IP, burst of 20
 	limiter := NewIPRateLimiter(10, 20)
@@ -182,6 +213,7 @@ func main() {
 	// Register handlers
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("/overwatch", owDataHandler)
+	mux.HandleFunc("/deadlock", dlDataHandler)
 
 	// Wrap mux with rate limiting middleware
 	handler := rateLimitMiddleware(limiter)(mux)
