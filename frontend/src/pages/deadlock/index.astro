@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import HeroCompass from '../../components/DLHeroCompass.vue';
 import CompassFilters from '../../components/CompassFilters.vue'
+import HeroList from '../../components/DLHeroList.vue'
 
 import DLLogo from '../../assets/dl-logo.svg';
 
@@ -55,6 +56,7 @@ const data = await response.json();
 <Layout title="DL Statistics" logo={DLLogo.src}>
   <main>
     
+    <HeroList class="container" heroData={data.data} client:load/>
     <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
     
 </Layout>
@@ -73,7 +75,7 @@ const data = await response.json();
   }
 
   #compass {
-    margin-right: 2rem;
+    margin-left: 1rem;
   }
 
 </style>

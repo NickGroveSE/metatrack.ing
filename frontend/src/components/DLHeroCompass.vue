@@ -114,7 +114,7 @@
 <script>
 
 export default {
-  name: 'OverwatchScatterPlot',
+  name: 'DeadlockScatterPlot',
   props: {
     heroData: Object,
   },
@@ -427,6 +427,7 @@ export default {
 </script>
 
 <style scoped>
+
 .chart-container {
   width: 100%;
   max-width: 560px;

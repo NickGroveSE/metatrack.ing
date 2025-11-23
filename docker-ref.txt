@@ -1,3 +1,4 @@
 docker-compose build
+docker-compose build prune
 docker-compose up -d
 docker-compose down
