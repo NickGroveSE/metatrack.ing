@@ -1,0 +1,83 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import HeroCompass from '../../components/DLHeroCompass.vue';
+import CompassFilters from '../../components/CompassFilters.vue'
+
+import DLLogo from '../../assets/dl-logo.svg';
+
+// Use process.env for server-side runtime variable
+const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
+console.log('Using backend URL:', backendUrl);
+
+const { searchParams } = Astro.url;
+
+const nowInMilliseconds = Date.now()
+const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000 // 20 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+
+const twentyFourHoursAgoInMilliseconds = nowInMilliseconds - twentyFourHoursInMilliseconds
+
+const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
+const unixTimestampTwentyFourHoursAgo = Math.floor(twentyFourHoursAgoInMilliseconds / 1000)
+
+const defaults = {
+    "min-unix-ts": unixTimestampTwentyFourHoursAgo.toString(),
+    "max-unix-ts": unixTimestampNow.toString(),
+    "min-badge": "91",
+    "max-badge": "116",
+    "min-hero-matches": "0",
+    "min-hero-matches-total": "0"
+}
+
+const finalParams = new URLSearchParams()
+Object.entries(defaults).forEach(([key, defaultValue]) => {
+  finalParams.set(key, searchParams.get(key) || defaultValue)
+})
+
+var response = new Response
+try {
+  response = await fetch(`${backendUrl}/deadlock?${finalParams.toString()}`);
+  
+} catch(error){
+  console.log(error)
+}
+const data = await response.json();
+// const params = {
+//   role: finalParams.get("role"),
+//   input: finalParams.get("input"),
+//   gameMode: finalParams.get("queue"),
+//   rankTier: finalParams.get("rank"),
+//   map: finalParams.get("map"),
+//   region: finalParams.get("region")
+// }
+
+---
+
+<Layout title="DL Statistics" logo={DLLogo.src}>
+  <main>
+    
+    <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
+    
+</Layout>
+
+<style>
+  main {
+    padding: 2rem;
+    max-width: 1000px;
+    margin: 20px auto 0 auto;
+    color: white;
+  }
+
+  .container {
+    display: inline-block;
+    vertical-align: top;
+  }
+
+  #compass {
+    margin-right: 2rem;
+  }
+
+</style>
+
+<script>
+
+</script>

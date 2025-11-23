@@ -114,13 +114,13 @@ func heroStats(gameClient *deadlock_game_api.APIClient, activeLookup map[int32]m
 		heroObj, contains := activeLookup[hero.HeroId]
 		if contains {
 			runningMatchSum += hero.Matches
-			heroEntities = append(heroEntities, models.DLHeroEntity{Heroes: []models.DLHero{heroObj}, Stats: models.DLHeroStats{Wins: hero.Wins, Matches: hero.Matches, PickRate: 0, WinRate: float32(hero.Wins) / float32(hero.Matches)}})
+			heroEntities = append(heroEntities, models.DLHeroEntity{Heroes: []models.DLHero{heroObj}, Stats: models.DLHeroStats{Wins: hero.Wins, Matches: hero.Matches, PickRate: 0, WinRate: (float32(hero.Wins) / float32(hero.Matches)) * 100}})
 		}
 	}
 
 	for i := range heroEntities {
 		divisionByNumOfPlayersPerMatch := float32(runningMatchSum) / float32(12)
-		heroEntities[i].Stats.PickRate = float32(heroEntities[i].Stats.Matches) / divisionByNumOfPlayersPerMatch
+		heroEntities[i].Stats.PickRate = (float32(heroEntities[i].Stats.Matches) / divisionByNumOfPlayersPerMatch) * 100
 	}
 
 	return heroEntities
