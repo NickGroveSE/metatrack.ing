@@ -10,22 +10,36 @@ const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
 console.log('Using backend URL:', backendUrl);
 
 const { searchParams } = Astro.url;
-const queryString = searchParams.toString();
+
+const defaults = {
+  role: "Support",
+  input: "PC",
+  queue: "0",
+  rank: "All",
+  map: "all-maps",
+  region: "Americas"
+}
+
+const finalParams = new URLSearchParams()
+Object.entries(defaults).forEach(([key, defaultValue]) => {
+  finalParams.set(key, searchParams.get(key) || defaultValue)
+})
+
 var response = new Response
 try {
-  response = await fetch(`${backendUrl}/overwatch?${queryString}`);
+  response = await fetch(`${backendUrl}/overwatch?${finalParams.toString()}`);
   
 } catch(error){
   console.log(error)
 }
 const data = await response.json();
 const params = {
-  role: searchParams.get("role"),
-  input: searchParams.get("input"),
-  gameMode: searchParams.get("queue"),
-  rankTier: searchParams.get("rank"),
-  map: searchParams.get("map"),
-  region: searchParams.get("region")
+  role: finalParams.get("role"),
+  input: finalParams.get("input"),
+  gameMode: finalParams.get("queue"),
+  rankTier: finalParams.get("rank"),
+  map: finalParams.get("map"),
+  region: finalParams.get("region")
 }
 
 ---
