@@ -62,7 +62,7 @@ var DLHeroColors = map[int32]string{
 
 // }
 
-func DLSingleHeroHandler() []models.DLHeroEntity {
+func DLSCHandler(minUnixTS int64, maxUnixTS int64, minAvgBadge int32, maxAvgBadge int32, minHeroMatches int64, minHeroMatchesTotal int64) []models.DLHeroEntity {
 
 	assetsConfig := deadlock_assets_api.NewConfiguration()
 	assetsAPIClient := deadlock_assets_api.NewAPIClient(assetsConfig)
@@ -70,16 +70,16 @@ func DLSingleHeroHandler() []models.DLHeroEntity {
 	gameConfig := deadlock_game_api.NewConfiguration()
 	gameAPIClient := deadlock_game_api.NewAPIClient(gameConfig)
 
-	var hardCodedMinUnixTS int64 = 1763765592
-	var hardCodedMaxUnixTS int64 = 1763855999
-	var hardCodedMinAvgBadge int32 = 91
-	var hardCodedMaxAvgBadge int32 = 116
-	var minHeroMatches = 0
-	var minHeroMatchesTotal = 0
+	// var hardCodedMinUnixTS int64 = 1763765592
+	// var hardCodedMaxUnixTS int64 = 1763855999
+	// var hardCodedMinAvgBadge int32 = 91
+	// var hardCodedMaxAvgBadge int32 = 116
+	// var minHeroMatches = 0
+	// var minHeroMatchesTotal = 0
 
 	idLookup := activeHeroes(assetsAPIClient)
 
-	return heroStats(gameAPIClient, idLookup, hardCodedMinUnixTS, hardCodedMaxUnixTS, hardCodedMinAvgBadge, hardCodedMaxAvgBadge, int64(minHeroMatches), int64(minHeroMatchesTotal))
+	return heroStats(gameAPIClient, idLookup, minUnixTS, maxUnixTS, minAvgBadge, maxAvgBadge, minHeroMatches, minHeroMatchesTotal)
 
 }
 

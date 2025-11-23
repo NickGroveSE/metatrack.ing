@@ -31,6 +31,9 @@ https://api.deadlock-api.com/v1/analytics/hero-stats?min_unix_timestamp=17613500
 https://assets.deadlock-api.com/v2/heroes?only_active=true
 - receive ids of active heroes
 
+http://localhost:8080/deadlock?min-unix-ts=1763765592&max-unix-ts=1763855999&min-badge=91&max-badge=116&min-hero-matches=0&min-hero-matches-total=0
+
+
 
 ### Color Assignment
 

@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -172,7 +174,7 @@ func owDataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func dlDataHandler(w http.ResponseWriter, r *http.Request) {
+func dlSCDataHandler(w http.ResponseWriter, r *http.Request) {
 	if origin := r.Header.Get("Origin"); origin == "http://localhost:4321" || origin == "https://metatrack.ing" {
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 	}
@@ -185,7 +187,42 @@ func dlDataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var data []models.DLHeroEntity = services.DLSingleHeroHandler()
+	queryParams := r.URL.Query()
+
+	minUnixTS, err := strconv.ParseInt(queryParams.Get("min-unix-ts"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting minUnixTS string to int64:", err)
+		return
+	}
+	maxUnixTS, err := strconv.ParseInt(queryParams.Get("max-unix-ts"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting maxUnixTS string to int64:", err)
+		fmt.Println(queryParams.Get("max-unix-ts"))
+		return
+	}
+	minBadge, err := strconv.ParseInt(queryParams.Get("min-badge"), 10, 32)
+	if err != nil {
+		fmt.Println("Error converting minBadge string to int32:", err)
+		return
+	}
+	maxBadge, err := strconv.ParseInt(queryParams.Get("max-badge"), 10, 32)
+	if err != nil {
+		fmt.Println("Error converting maxBadge string to int32:", err)
+		return
+	}
+	minHeroMatches, err := strconv.ParseInt(queryParams.Get("min-hero-matches"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting minHeroMatches string to int64:", err)
+		return
+	}
+	minHeroMatchesTotal, err := strconv.ParseInt(queryParams.Get("min-hero-matches-total"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting minHeroMatchesTotal string to int64:", err)
+		return
+	}
+	// combos := queryParams.Get("combos")
+
+	var data []models.DLHeroEntity = services.DLSCHandler(minUnixTS, maxUnixTS, int32(minBadge), int32(maxBadge), minHeroMatches, minHeroMatchesTotal)
 
 	response := models.DLDataResponse{
 		Status:    "success",
@@ -213,7 +250,7 @@ func main() {
 	// Register handlers
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("/overwatch", owDataHandler)
-	mux.HandleFunc("/deadlock", dlDataHandler)
+	mux.HandleFunc("/deadlock", dlSCDataHandler)
 
 	// Wrap mux with rate limiting middleware
 	handler := rateLimitMiddleware(limiter)(mux)
