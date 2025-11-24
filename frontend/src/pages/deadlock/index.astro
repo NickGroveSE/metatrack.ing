@@ -44,17 +44,21 @@ try {
   console.log(error)
 }
 const data = await response.json();
-var checkedHeroes
-var visualizedHeroes
+var checkedHeroes: any
+var visualizedHeroes: any
 
-if (!finalParams.has("heroes") || finalParams.get("heroes") == "" && !finalParams.has("combos") || finalParams.get("combos") == "") {
-  var visualizedHeroes = data.data.slice(0, 5);
-  var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
+if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
+  visualizedHeroes = data.data.slice(0, 5);
+  checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
 } else {
-
+  console.log("Assigning Checked Heroes...")
+  checkedHeroes = finalParams.get("heroes")?.split("~").map(Number)
+  
+  console.log("Assigning Visualized Heroes...")
+  visualizedHeroes = data.data.filter((heroEntity: { Heroes: { ID: any; }[]; }) => 
+    checkedHeroes.includes(heroEntity.Heroes[0].ID)
+  )
 }
-
-
 ---
 
 <Layout title="DL Statistics" logo={DLLogo.src}>
