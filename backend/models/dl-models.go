@@ -26,3 +26,9 @@ type DLDataResponse struct {
 	Timestamp time.Time      `json:"timestamp"`
 	Data      []DLHeroEntity `json:"data"`
 }
+
+type DLIndividualComboDataResponse struct {
+	Status    string       `json:"status"`
+	Timestamp time.Time    `json:"timestamp"`
+	Data      DLHeroEntity `json:"data"`
+}

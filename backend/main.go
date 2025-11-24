@@ -240,6 +240,77 @@ func dlSCDataHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func dlComboAdditionDataHandler(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin == "http://localhost:4321" || origin == "https://metatrack.ing" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Only allow GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	queryParams := r.URL.Query()
+
+	minUnixTS, err := strconv.ParseInt(queryParams.Get("min-unix-ts"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting minUnixTS string to int64:", err)
+		return
+	}
+	maxUnixTS, err := strconv.ParseInt(queryParams.Get("max-unix-ts"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting maxUnixTS string to int64:", err)
+		fmt.Println(queryParams.Get("max-unix-ts"))
+		return
+	}
+	minBadge, err := strconv.ParseInt(queryParams.Get("min-badge"), 10, 32)
+	if err != nil {
+		fmt.Println("Error converting minBadge string to int32:", err)
+		return
+	}
+	maxBadge, err := strconv.ParseInt(queryParams.Get("max-badge"), 10, 32)
+	if err != nil {
+		fmt.Println("Error converting maxBadge string to int32:", err)
+		return
+	}
+	minMatchesTotal, err := strconv.ParseInt(queryParams.Get("min-hero-matches-total"), 10, 64)
+	if err != nil {
+		fmt.Println("Error converting minHeroMatchesTotal string to int64:", err)
+		return
+	}
+	comboStrings := strings.Split(queryParams.Get("combo"), "-")
+	comboInt32 := make([]int32, len(comboStrings))
+
+	for i, s := range comboStrings {
+		parsedInt64, err := strconv.ParseInt(s, 10, 32)
+		if err != nil {
+			fmt.Printf("Error converting combo string '%s' to int32: %v\n", s, err)
+			continue
+		}
+		comboInt32[i] = int32(parsedInt64)
+	}
+
+	var data models.DLHeroEntity = services.DLComboAdditionHandler(minUnixTS, maxUnixTS, int32(minBadge), int32(maxBadge), int32(minMatchesTotal), comboInt32)
+
+	response := models.DLIndividualComboDataResponse{
+		Status:    "success",
+		Timestamp: time.Now(),
+		Data:      data,
+	}
+
+	// Set content type to JSON
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Encode and send response
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
+
 func main() {
 	// Create rate limiter: 10 requests per second per IP, burst of 20
 	limiter := NewIPRateLimiter(10, 20)
@@ -251,6 +322,7 @@ func main() {
 	mux.HandleFunc("/health", healthHandler)
 	mux.HandleFunc("/overwatch", owDataHandler)
 	mux.HandleFunc("/deadlock", dlSCDataHandler)
+	mux.HandleFunc("/deadlock/combo", dlComboAdditionDataHandler)
 
 	// Wrap mux with rate limiting middleware
 	handler := rateLimitMiddleware(limiter)(mux)
