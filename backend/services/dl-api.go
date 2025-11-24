@@ -84,6 +84,10 @@ func DLSCHandler(minUnixTS int64, maxUnixTS int64, minAvgBadge int32, maxAvgBadg
 
 }
 
+// func DLComboHandler(minUnixTS int64, maxUnixTS int64, minAvgBadge int32, maxAvgBadge int32, minHeroMatches int64, minHeroMatchesTotal int64) []models.DLHeroEntity {
+
+// }
+
 func activeHeroes(assetsClient *deadlock_assets_api.APIClient) map[int32]models.DLHero {
 
 	res, _, err := assetsClient.HeroesAPI.GetHeroesV2HeroesGet(context.Background()).OnlyActive(true).Execute()

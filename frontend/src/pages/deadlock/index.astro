@@ -100,10 +100,27 @@ var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => 
   const allHeroData = JSON.parse(main?.dataset.allHeroes || '[]');
 
   heroList?.addEventListener('checked-heroes-changed', (event) => {
-    console.log("Emission Caught")
     const customEvent = event as CustomEvent;
     const checkedIds = customEvent.detail;
+    const url = new URL(window.location.href);
+    const searchParams = new URLSearchParams(url.search);
+
     console.log('Checked heroes changed:', checkedIds);
+    var heroesParam = ""
+
+    for (let i = 0; i < checkedIds.length; i++) {
+      if (i != checkedIds.length - 1) {
+        heroesParam += checkedIds[i].toString() + "~"
+      } else {
+        heroesParam += checkedIds[i].toString()
+      }
+    }
+
+    if (searchParams.has("heroes")) {
+      searchParams.set("heroes", heroesParam)
+    } else {
+      searchParams.append("heroes", heroesParam)
+    }
     
     // Filter to get only checked heroes
     const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
@@ -114,6 +131,8 @@ var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => 
     const updateEvent = new CustomEvent('hero-data-updated', { 
       detail: filteredHeroes
     });
+
+    window.history.pushState({}, '', `${url.pathname}?${searchParams.toString()}`);
     compass?.dispatchEvent(updateEvent);
   });
 
