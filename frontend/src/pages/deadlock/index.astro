@@ -44,13 +44,15 @@ try {
   console.log(error)
 }
 const data = await response.json();
-// var checkedHeroes
-// var visualizedHeroes
+var checkedHeroes
+var visualizedHeroes
 
-// if(finalParams.get("heroes") == "" && finalParams.get("combos") == "") {
-var visualizedHeroes = data.data.slice(0, 5);
-var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
-// }
+if (!finalParams.has("heroes") || finalParams.get("heroes") == "" && !finalParams.has("combos") || finalParams.get("combos") == "") {
+  var visualizedHeroes = data.data.slice(0, 5);
+  var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
+} else {
+
+}
 
 
 ---
@@ -93,7 +95,6 @@ var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => 
 </style>
 
 <script>
-
   const heroList = document.getElementById('hero-list');
   const compass = document.getElementById('compass');
   const main = document.querySelector('main');
@@ -106,15 +107,8 @@ var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => 
     const searchParams = new URLSearchParams(url.search);
 
     console.log('Checked heroes changed:', checkedIds);
-    var heroesParam = ""
 
-    for (let i = 0; i < checkedIds.length; i++) {
-      if (i != checkedIds.length - 1) {
-        heroesParam += checkedIds[i].toString() + "~"
-      } else {
-        heroesParam += checkedIds[i].toString()
-      }
-    }
+    const heroesParam = checkedIds.join("~")
 
     if (searchParams.has("heroes")) {
       searchParams.set("heroes", heroesParam)
