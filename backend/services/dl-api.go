@@ -12,6 +12,7 @@ import (
 	// "github.com/PuerkitoBio/goquery"
 	"context"
 	"fmt"
+	"math"
 
 	// "slices"
 	// "time"
@@ -114,15 +115,20 @@ func heroStats(gameClient *deadlock_game_api.APIClient, activeLookup map[int32]m
 		heroObj, contains := activeLookup[hero.HeroId]
 		if contains {
 			runningMatchSum += hero.Matches
-			heroEntities = append(heroEntities, models.DLHeroEntity{Heroes: []models.DLHero{heroObj}, Stats: models.DLHeroStats{Wins: hero.Wins, Matches: hero.Matches, PickRate: 0, WinRate: (float32(hero.Wins) / float32(hero.Matches)) * 100}})
+			heroEntities = append(heroEntities, models.DLHeroEntity{Heroes: []models.DLHero{heroObj}, Stats: models.DLHeroStats{Wins: hero.Wins, Matches: hero.Matches, PickRate: 0, WinRate: roundFloat32((float32(hero.Wins)/float32(hero.Matches))*100, 2)}})
 		}
 	}
 
 	for i := range heroEntities {
 		divisionByNumOfPlayersPerMatch := float32(runningMatchSum) / float32(12)
-		heroEntities[i].Stats.PickRate = (float32(heroEntities[i].Stats.Matches) / divisionByNumOfPlayersPerMatch) * 100
+		heroEntities[i].Stats.PickRate = roundFloat32((float32(heroEntities[i].Stats.Matches)/divisionByNumOfPlayersPerMatch)*100, 2)
 	}
 
 	return heroEntities
 
+}
+
+func roundFloat32(val float32, precision uint) float32 {
+	ratio := float32(math.Pow(10, float64(precision)))
+	return float32(math.Round(float64(val*ratio))) / ratio
 }

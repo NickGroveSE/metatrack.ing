@@ -13,20 +13,22 @@ console.log('Using backend URL:', backendUrl);
 const { searchParams } = Astro.url;
 
 const nowInMilliseconds = Date.now()
-const twentyFourHoursInMilliseconds = 24 * 60 * 60 * 1000 // 20 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+const weekInMilliseconds = 168 * 60 * 60 * 1000 // 168 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
 
-const twentyFourHoursAgoInMilliseconds = nowInMilliseconds - twentyFourHoursInMilliseconds
+const weekAgoInMilliseconds = nowInMilliseconds - weekInMilliseconds
 
 const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
-const unixTimestampTwentyFourHoursAgo = Math.floor(twentyFourHoursAgoInMilliseconds / 1000)
+const unixTimestampAWeekAgo = Math.floor(weekAgoInMilliseconds / 1000)
 
 const defaults = {
-    "min-unix-ts": unixTimestampTwentyFourHoursAgo.toString(),
+    "min-unix-ts": unixTimestampAWeekAgo.toString(),
     "max-unix-ts": unixTimestampNow.toString(),
     "min-badge": "91",
     "max-badge": "116",
     "min-hero-matches": "0",
-    "min-hero-matches-total": "0"
+    "min-hero-matches-total": "0",
+    "heroes": "",
+    "combos": "",
 }
 
 const finalParams = new URLSearchParams()
@@ -42,23 +44,33 @@ try {
   console.log(error)
 }
 const data = await response.json();
-// const params = {
-//   role: finalParams.get("role"),
-//   input: finalParams.get("input"),
-//   gameMode: finalParams.get("queue"),
-//   rankTier: finalParams.get("rank"),
-//   map: finalParams.get("map"),
-//   region: finalParams.get("region")
+// var checkedHeroes
+// var visualizedHeroes
+
+// if(finalParams.get("heroes") == "" && finalParams.get("combos") == "") {
+var visualizedHeroes = data.data.slice(0, 5);
+var checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
 // }
+
 
 ---
 
 <Layout title="DL Statistics" logo={DLLogo.src}>
-  <main>
-    
-    <HeroList class="container" heroData={data.data} client:load/>
-    <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
-    
+  <main data-all-heroes={JSON.stringify(data.data)}>
+    <HeroList 
+      class="container" 
+      id="hero-list"
+      heroData={data.data} 
+      setCheckedHeroes={checkedHeroes}
+      client:load
+    />
+    <HeroCompass 
+      class="container" 
+      id="compass" 
+      heroData={visualizedHeroes} 
+      client:load
+    />
+  </main>
 </Layout>
 
 <style>
@@ -81,5 +93,28 @@ const data = await response.json();
 </style>
 
 <script>
+
+  const heroList = document.getElementById('hero-list');
+  const compass = document.getElementById('compass');
+  const main = document.querySelector('main');
+  const allHeroData = JSON.parse(main?.dataset.allHeroes || '[]');
+
+  heroList?.addEventListener('checked-heroes-changed', (event) => {
+    console.log("Emission Caught")
+    const customEvent = event as CustomEvent;
+    const checkedIds = customEvent.detail;
+    console.log('Checked heroes changed:', checkedIds);
+    
+    // Filter to get only checked heroes
+    const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
+      checkedIds.includes(hero.Heroes[0].ID)
+    );
+    
+    // Update compass with custom event
+    const updateEvent = new CustomEvent('hero-data-updated', { 
+      detail: filteredHeroes
+    });
+    compass?.dispatchEvent(updateEvent);
+  });
 
 </script>

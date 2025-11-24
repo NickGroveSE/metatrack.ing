@@ -46,11 +46,15 @@ export default {
   name: 'DeadlockHeroList',
   props: {
     heroData: Object,
+    setCheckedHeroes: {
+      type: Array,
+      default: () => []
+    }
   },
   data() {
     return {
       data: this.heroData,
-      checkedHeroes: [],
+      checkedHeroes: [...this.setCheckedHeroes],
       searchQuery: ''
     };
   },
@@ -84,6 +88,18 @@ export default {
     }
   },
   watch: {
+    checkedHeroes: {
+      handler(newVal) {
+        console.log("Before Checked Hero Change Emission")
+        // Dispatch a native DOM event that Astro can listen to
+        const event = new CustomEvent('checked-heroes-changed', {
+          detail: newVal,
+          bubbles: true
+        });
+        this.$el.dispatchEvent(event);
+      },
+      deep: true
+    },
     heroData: {
       handler(newVal) {
         this.data = newVal;
