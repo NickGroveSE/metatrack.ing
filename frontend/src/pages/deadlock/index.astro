@@ -134,4 +134,70 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
     compass?.dispatchEvent(updateEvent);
   });
 
+  heroList?.addEventListener('combo-added', async (event) => {
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const customEvent = event as CustomEvent;
+    const checkedHeroes = customEvent.detail.checkedHeroes
+    const combosParam = customEvent.detail.combo;
+    const url = new URL(window.location.href);
+    const searchParams = new URLSearchParams(url.search);
+
+    const nowInMilliseconds = Date.now()
+    const weekInMilliseconds = 168 * 60 * 60 * 1000 // 168 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+
+    const weekAgoInMilliseconds = nowInMilliseconds - weekInMilliseconds
+
+    const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
+    const unixTimestampAWeekAgo = Math.floor(weekAgoInMilliseconds / 1000)
+
+    const requestParams = {
+        "min-unix-ts": unixTimestampAWeekAgo.toString(),
+        "max-unix-ts": unixTimestampNow.toString(),
+        "min-badge": "91",
+        "max-badge": "116",
+        "min-hero-matches-total": "0",
+        "combo": combosParam,
+    }
+
+    const newParams = new URLSearchParams()
+    Object.entries(requestParams).forEach(([key, value]) => {
+      newParams.set(key, value)
+    })
+
+    if (searchParams.has("combos")) {
+      const allCombos = `${searchParams.get("combos")}~${combosParam}`
+      searchParams.set("combos", allCombos)
+    } else {
+      searchParams.append("combos", combosParam)
+    }
+
+    var response = new Response()
+    try {
+      response = await fetch(`${backendUrl}/deadlock/combo?${newParams.toString()}`);
+      
+    } catch(error){
+      console.log(error)
+    }
+    const data = await response.json();
+
+    const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
+      checkedHeroes.includes(hero.Heroes[0].ID)
+    );
+
+    const updatedHeroes = [...filteredHeroes, data.data];
+    const updateAllHeroes = [...allHeroData, data.data];
+
+    const updateCompass = new CustomEvent('hero-data-updated', { 
+      detail: updatedHeroes
+    });
+
+    const updateList = new CustomEvent('hero-list-updated', {
+      detail: updateAllHeroes
+    })
+
+    window.history.pushState({}, '', `${url.pathname}?${searchParams.toString()}`);
+    compass?.dispatchEvent(updateCompass);
+    heroList.dispatchEvent(updateList);
+  })
+
 </script>

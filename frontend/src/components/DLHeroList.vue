@@ -8,7 +8,7 @@
                 placeholder="Search heroes..."
                 class="search-input"
             />
-            <button class="add-combo-btn" @click="addCombo" title="Add a Combo">
+            <button class="add-combo-btn" @click="dispatchCombo" title="Confirm Combo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -18,22 +18,38 @@
         
         <div class="checkbox-container">
             <label 
-                v-for="hero in sortedAndFilteredHeroes" 
-                :key="hero.Heroes[0].ID" 
+                v-for="item in sortedAndFilteredHeroes" 
+                :key="getItemKey(item)" 
                 class="checkbox-item" 
-                :class="{'checkbox-item-checked': checkedHeroes.includes(hero.Heroes[0].ID)}" 
-                :style="`--hero-color: ${hero.Heroes[0].Color}`"
+                :class="getCheckboxClass(item)" 
+                :style="getItemStyle(item)"
             >
                 <input 
                     type="checkbox" 
-                    :value="hero.Heroes[0].ID"
+                    v-if="item.Heroes.length === 1"
+                    :value="item.Heroes[0].ID"
                     v-model="checkedHeroes"
                 />
-                <img 
-                    class="image"
-                    :src="hero.Heroes[0].Image"
+                <input 
+                    type="checkbox"
+                    v-else
+                    :checked="true"
+                    :disabled="true"
                 />
-                <span class="name">{{ hero.Heroes[0].Name }}</span>
+                <img 
+                    v-if="item.Heroes.length === 1"
+                    class="image"
+                    :src="item.Heroes[0].Image"
+                />
+                <template v-else>
+                    <img 
+                        v-for="hero in item.Heroes"
+                        :key="hero.ID"
+                        class="image combo-image"
+                        :src="hero.Image"
+                    />
+                </template>
+                <span class="name">{{ item.Heroes.length === 1 ? item.Heroes[0].Name : `Combo ${getComboNumber(item)}` }}</span>
             </label>
         </div>
     </div>
@@ -58,6 +74,12 @@ export default {
       searchQuery: ''
     };
   },
+  mounted() {
+    this.$el.addEventListener('hero-list-updated', (event) => {
+      // This updates internal data, not the prop
+      this.data = event.detail;
+    });
+  },
   computed: {
     sortedAndFilteredHeroes() {
       if (!this.data) return [];
@@ -68,9 +90,22 @@ export default {
         const query = this.searchQuery.toLowerCase();
         return name.includes(query);
       });
-      
-      // Sort: checked heroes first, then alphabetically
+  
+      // Sort: combos first, then checked heroes, then unchecked heroes
       return filtered.sort((a, b) => {
+        const aIsCombo = a.Heroes.length > 1;
+        const bIsCombo = b.Heroes.length > 1;
+        
+        // Combos always first
+        if (aIsCombo && !bIsCombo) return -1;
+        if (!aIsCombo && bIsCombo) return 1;
+        
+        // Both combos - sort alphabetically by combo number
+        if (aIsCombo && bIsCombo) {
+          return this.getComboNumber(a) - this.getComboNumber(b);
+        }
+      
+        // Both are heroes - sort by checked status
         const aChecked = this.checkedHeroes.includes(a.Heroes[0].ID);
         const bChecked = this.checkedHeroes.includes(b.Heroes[0].ID);
         
@@ -83,8 +118,64 @@ export default {
     }
   },
   methods: {
-    addCombo() {
-      alert('Add a Combo');
+    dispatchCombo() {
+      const event = new CustomEvent('combo-added', {
+        detail: {
+          checkedHeroes: this.checkedHeroes,
+          combo: "2-11"
+        },
+        bubbles: true
+      });
+      this.$el.dispatchEvent(event);
+    },
+    getItemKey(item) {
+      if (item.Heroes.length === 1) {
+        return item.Heroes[0].Name
+      }
+
+      const names = item.Heroes.map(h => h.Name);
+
+      return names.join("-")
+    },
+    getCheckboxClass(item) {
+      if (item.Heroes.length === 1) {
+          return {
+              'checkbox-item-checked': this.checkedHeroes.includes(item.Heroes[0].ID)
+          };
+      }
+      
+      return {
+          'checkbox-item-checked': true
+      };
+    },
+    getItemStyle(item) {
+      // Single hero - use solid color
+      if (item.Heroes.length === 1) {
+          return `--hero-color: ${item.Heroes[0].Color}`;
+      }
+      
+      // Combo - create linear gradient
+      const colors = item.Heroes.map(h => h.Color);
+      const stopPercentage = 100 / colors.length;
+      
+      let gradientStops = [];
+      colors.forEach((color, index) => {
+          const start = index * stopPercentage;
+          const end = (index + 1) * stopPercentage;
+          gradientStops.push(`${color} ${start}%, ${color} ${end}%`);
+      });
+      
+      return `--hero-color: linear-gradient(135deg, ${gradientStops.join(', ')})`;
+    },
+    getComboNumber(comboItem) {
+        // Filter to get only combos from your data
+        const combos = this.data.filter(item => item.Heroes.length > 1);
+        // Find the index of this specific combo and add 1 (for human-readable numbering)
+        return combos.findIndex(c => this.getComboIdentifier(c) === this.getComboIdentifier(comboItem)) + 1;
+    },
+    getComboIdentifier(item) {
+        // Create unique identifier for combo (using hero names or IDs)
+        return item.Heroes.map(h => h.ID).sort().join('-');
     }
   },
   watch: {
@@ -193,7 +284,7 @@ export default {
 }
 
 .checkbox-item-checked {
-    background-color: var(--hero-color);
+    background: var(--hero-color);
     opacity: 0.75;
     color: white;
 }
@@ -203,7 +294,7 @@ export default {
 }
 
 .checkbox-item:hover {
-    border: solid 2px var(--hero-color);
+    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.6);
     color: white;
 }
 
@@ -212,6 +303,15 @@ export default {
   width: 20px;
   height: 20px;
   object-fit: contain;
+}
+
+.combo-image {
+    display: inline-block;
+    margin-right: -8px;  /* Negative margin for overlap */
+}
+
+.combo-image:last-child {
+    margin-right: 0;
 }
 
 .checkbox-item input {

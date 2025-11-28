@@ -44,9 +44,23 @@
         />
 
         <!-- Data points -->
-        <g v-for="(hero, i) in data" :key="hero.Heroes[0].Name">
+        <g v-for="(hero, i) in data" :key="getItemKey(hero)">
+          <defs v-if="hero.Heroes.length > 1">
+            <radialGradient :id="`combo-gradient-${getItemKey(hero)}`">
+              <template v-for="(h, index) in hero.Heroes" :key="`${h.Name}-stops`">
+                <stop 
+                  :offset="`${(index / hero.Heroes.length) * 100}%`" 
+                  :stop-color="h.Color" 
+                />
+                <stop 
+                  :offset="`${((index + 1) / hero.Heroes.length) * 100}%`" 
+                  :stop-color="h.Color" 
+                />
+              </template>
+            </radialGradient>
+          </defs>
           <text
-            v-if="tooltip.pinnedHero !== hero.Heroes[0].Name && (tooltip.pinned || hoveredHero !== hero.Heroes[0].Name)"
+            v-if="tooltip.pinnedHero !== getDisplayName(hero) && (tooltip.pinned || hoveredHero !== getDisplayName(hero))"
             :x="getLabelPosition(hero, i).x"
             :y="getLabelPosition(hero, i).y"
             text-anchor="middle"
@@ -55,22 +69,22 @@
             font-weight="600"
             class="hero-dot-text"
           >
-            {{ hero.Heroes[0].Name }}
+            {{ getDisplayName(hero) }}
           </text>
           <circle
             :cx="scaleX(hero.Stats.PickRate)"
             :cy="scaleY(hero.Stats.WinRate)"
             r="10"
-            :fill="hero.Heroes[0].Color"
+            :fill="hero.Heroes.length === 1 ? hero.Heroes[0].Color : `url(#combo-gradient-${getItemKey(hero)})`"
             opacity="0.75"
-            :class="{ 'hero-dot': true, 'pinned': tooltip.pinned && tooltip.pinnedHero === hero.Heroes[0].Name }"
+            :class="{ 'hero-dot': true, 'pinned': tooltip.pinned && tooltip.pinnedHero === getDisplayName(hero) }"
             @mouseenter="handleMouseEnter(hero, $event)"
             @mousemove="handleMouseMove($event)"
             @mouseleave="handleMouseLeave"
             @click="handleDotClick(hero, $event)"
           />
           <circle
-            v-if="tooltip.pinned && tooltip.pinnedHero === hero.Heroes[0].Name || hoveredHero === hero.Heroes[0].Name"
+            v-if="tooltip.pinned && tooltip.pinnedHero === getDisplayName(hero) || hoveredHero === getDisplayName(hero)"
             :cx="scaleX(hero.Stats.PickRate)"
             :cy="scaleY(hero.Stats.WinRate)"
             r="10"
@@ -100,10 +114,19 @@
           ×
         </button>
         <img 
-          class="tooltip-image"
-          :src="tooltip.data.Heroes[0].Image"
+            v-if="tooltip.data.Heroes.length === 1"
+            class="tooltip-image"
+            :src="tooltip.data.Heroes[0].Image"
         />
-        <div class="tooltip-name">{{ tooltip.data.Heroes[0].Name }}</div>
+        <template v-else>
+            <img 
+                v-for="hero in tooltip.data.Heroes"
+                :key="hero.ID"
+                class="tooltip-image combo-image"
+                :src="hero.Image"
+            />
+        </template>
+        <div class="tooltip-name">{{ getDisplayName(tooltip.data) }}</div>
         <div class="tooltip-stat">Pick Rate: {{ tooltip.data.Stats.PickRate }}%</div>
         <div class="tooltip-stat">Win Rate: {{ tooltip.data.Stats.WinRate }}%</div>
       </div>
@@ -252,7 +275,7 @@ export default {
         const y = this.scaleY(hero.Stats.WinRate);
         
         // Estimate label width based on character count (roughly 7px per character)
-        const nameLength = hero.Heroes[0].Name.length;
+        const nameLength = this.getDisplayName(hero).length;
         const estimatedWidth = nameLength * 7;
         const halfWidth = estimatedWidth / 2;
         
@@ -284,7 +307,7 @@ export default {
           for (let j = 0; j < positions.length; j++) {
             const pos = positions[j];
             const otherHero = this.data[j];
-            const otherWidth = otherHero.Heroes[0].Name.length * 7;
+            const otherWidth = this.getDisplayName(otherHero).length * 7;
             
             // Calculate rectangular overlap
             const xDist = Math.abs(testX - pos.x);
@@ -350,9 +373,9 @@ export default {
       };
     },
     handleMouseEnter(hero, event) {
-      this.hoveredHero = hero.Heroes[0].Name;
+      this.hoveredHero = this.getDisplayName(hero);
       // Don't show tooltip on hover if it's pinned to a different hero
-      if (this.tooltip.pinned && this.tooltip.pinnedHero !== hero.Heroes[0].Name) {
+      if (this.tooltip.pinned && this.tooltip.pinnedHero !== this.getDisplayName(hero)) {
         return;
       }
       
@@ -390,7 +413,7 @@ export default {
       event.stopPropagation();
       
       // If clicking the same hero that's pinned, unpin it
-      if (this.tooltip.pinned && this.tooltip.pinnedHero === hero.Heroes[0].Name) {
+      if (this.tooltip.pinned && this.tooltip.pinnedHero === this.getDisplayName(hero)) {
         this.tooltip = {
           show: false,
           pinned: false,
@@ -404,7 +427,7 @@ export default {
         this.tooltip = {
           show: true,
           pinned: true,
-          pinnedHero: hero.Heroes[0].Name,
+          pinnedHero: this.getDisplayName(hero),
           x: event.pageX,
           y: event.pageY,
           data: hero
@@ -421,6 +444,30 @@ export default {
         data: null
       };
       this.hoveredHero = null;
+    },
+    getItemKey(item) {
+      // console.log("Get Item Key Log")
+      // console.log(item)
+      if (item.Heroes.length === 1) {
+        return item.Heroes[0].Name
+      }
+
+      const names = item.Heroes.map(h => h.Name);
+
+      return names.join("-")
+    },
+    getDisplayName(item) {
+        return item.Heroes.length === 1 ? item.Heroes[0].Name : `Combo ${this.getComboNumber(item)}`
+    },
+    getComboNumber(comboItem) {
+        // Filter to get only combos from your data
+        const combos = this.data.filter(item => item.Heroes.length > 1);
+        // Find the index of this specific combo and add 1 (for human-readable numbering)
+        return combos.findIndex(c => this.getComboIdentifier(c) === this.getComboIdentifier(comboItem)) + 1;
+    },
+    getComboIdentifier(item) {
+        // Create unique identifier for combo (using hero names or IDs)
+        return item.Heroes.map(h => h.ID).sort().join('-');
     }
   }
 };
@@ -556,6 +603,17 @@ export default {
   height: 50px;
   object-fit: contain;
   margin-bottom: 5px;
+}
+
+.combo-image {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: -8px;  /* Negative margin for overlap */
+}
+
+.combo-image:last-child {
+  margin-right: 0;
 }
 
 .tooltip-name {
