@@ -154,7 +154,7 @@ export default {
           return `--hero-color: ${item.Heroes[0].Color}`;
       }
       
-      // Combo - create linear gradient
+      // Combo - create linear gradient with hard stops
       const colors = item.Heroes.map(h => h.Color);
       const stopPercentage = 100 / colors.length;
       
@@ -162,7 +162,10 @@ export default {
       colors.forEach((color, index) => {
           const start = index * stopPercentage;
           const end = (index + 1) * stopPercentage;
-          gradientStops.push(`${color} ${start}%, ${color} ${end}%`);
+          
+          // Add both start and end points for hard transition
+          gradientStops.push(`${color} ${start}%`);
+          gradientStops.push(`${color} ${end}%`);
       });
       
       return `--hero-color: linear-gradient(135deg, ${gradientStops.join(', ')})`;
@@ -277,7 +280,6 @@ export default {
     padding: 0.5rem 0.75rem;
     cursor: pointer;
     transition: background 0.2s;
-    border: solid 2px transparent;
     color: lightslategray;
     border-radius: 5px;
     margin-bottom: 0.25rem;
