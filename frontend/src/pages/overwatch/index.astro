@@ -79,7 +79,7 @@ const params = {
     <div id="modal-overlay" class="modal-overlay"></div>
 
     <!-- Promotional Popup  -->
-    <div id="promo-popup" class="promo-popup">
+    <!-- <div id="promo-popup" class="promo-popup">
       <div class="promo-content">
         <button id="close-promo" class="promo-close-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -99,7 +99,7 @@ const params = {
         <button class="promo-cta">Learn More</button>
       </div>
     </div>
-    <div id="promo-overlay" class="promo-overlay"></div>
+    <div id="promo-overlay" class="promo-overlay"></div> -->
   </main>
 </Layout>
 
@@ -234,7 +234,7 @@ const params = {
   }
 
   /* Promotional Popup Styles */
-  .promo-popup {
+  /* .promo-popup {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -297,7 +297,7 @@ const params = {
 
   .promo-icon svg {
     color: #111827;
-  }
+  }*/
 
   @keyframes pulse {
     0%, 100% {
@@ -308,7 +308,7 @@ const params = {
     }
   }
 
-  .promo-title {
+  /*.promo-title {
     font-size: 1.75rem;
     font-weight: 700;
     color: #fbbf24;
@@ -363,7 +363,7 @@ const params = {
   .promo-overlay.active {
     opacity: 1;
     visibility: visible;
-  }
+  }*/
 
   /* Responsive styles */
   @media (max-width: 980px) {
@@ -404,7 +404,7 @@ const params = {
       justify-content: center;
     }
 
-    .promo-content {
+    /*.promo-content {
       margin: 0 1rem;
       padding: 2rem 1.5rem;
     }
@@ -421,7 +421,7 @@ const params = {
     .promo-icon svg {
       width: 36px;
       height: 36px;
-    }
+    }*/
   }
 </style>
 
@@ -433,59 +433,59 @@ const params = {
   }
 
   // Promotional popup functionality
-  function initPromoPopup() {
-    const promoPopup = document.getElementById('promo-popup');
-    const promoOverlay = document.getElementById('promo-overlay');
-    const closePromoBtn = document.getElementById('close-promo');
-    const promoCta = document.querySelector('.promo-cta');
+  // function initPromoPopup() {
+  //   const promoPopup = document.getElementById('promo-popup');
+  //   const promoOverlay = document.getElementById('promo-overlay');
+  //   const closePromoBtn = document.getElementById('close-promo');
+  //   const promoCta = document.querySelector('.promo-cta');
 
-    // Check if user has already seen the popup this session
-    const hasSeenPromo = sessionStorage.getItem('hasSeenPromo');
+  //   // Check if user has already seen the popup this session
+  //   const hasSeenPromo = sessionStorage.getItem('hasSeenPromo');
 
-    function showPromo() {
-      promoPopup?.classList.add('active');
-      promoOverlay?.classList.add('active');
-      document.body.style.overflow = 'hidden';
+  //   function showPromo() {
+  //     promoPopup?.classList.add('active');
+  //     promoOverlay?.classList.add('active');
+  //     document.body.style.overflow = 'hidden';
 
-      // Auto-dismiss after 8 seconds
-      setTimeout(() => {
-        closePromo();
-      }, 8000);
-    }
+  //     // Auto-dismiss after 8 seconds
+  //     setTimeout(() => {
+  //       closePromo();
+  //     }, 8000);
+  //   }
 
-    function closePromo() {
-      promoPopup?.classList.remove('active');
-      promoOverlay?.classList.remove('active');
-      document.body.style.overflow = '';
-      sessionStorage.setItem('hasSeenPromo', 'true');
-    }
+  //   function closePromo() {
+  //     promoPopup?.classList.remove('active');
+  //     promoOverlay?.classList.remove('active');
+  //     document.body.style.overflow = '';
+  //     sessionStorage.setItem('hasSeenPromo', 'true');
+  //   }
 
-    // Show popup after a short delay if not seen
-    if (!hasSeenPromo) {
-      setTimeout(() => {
-        showPromo();
-      }, 1000);
-    }
+  //   // Show popup after a short delay if not seen
+  //   if (!hasSeenPromo) {
+  //     setTimeout(() => {
+  //       showPromo();
+  //     }, 1000);
+  //   }
 
-    // Event listeners
-    closePromoBtn?.addEventListener('click', closePromo);
-    promoOverlay?.addEventListener('click', closePromo);
-    promoCta?.addEventListener('click', () => {
-      // Add your link or action here
-      window.open('https://youtu.be/-cnI2kOvqtg?si=O3YegNE6_303bJkv', '_blank');
-      closePromo();
-    });
+  //   // Event listeners
+  //   closePromoBtn?.addEventListener('click', closePromo);
+  //   promoOverlay?.addEventListener('click', closePromo);
+  //   promoCta?.addEventListener('click', () => {
+  //     // Add your link or action here
+  //     window.open('https://youtu.be/-cnI2kOvqtg?si=O3YegNE6_303bJkv', '_blank');
+  //     closePromo();
+  //   });
 
-    // Close on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && promoPopup?.classList.contains('active')) {
-        closePromo();
-      }
-    });
-  }
+  //   // Close on escape key
+  //   document.addEventListener('keydown', (e) => {
+  //     if (e.key === 'Escape' && promoPopup?.classList.contains('active')) {
+  //       closePromo();
+  //     }
+  //   });
+  // }
 
-  // Initialize promo popup
-  initPromoPopup();
+  // // Initialize promo popup
+  // initPromoPopup();
 
   // Modal functionality
   const filtersButton = document.getElementById('filters-button');
