@@ -5,13 +5,21 @@ import GameButton from '../components/GameButton.vue';
 import Logo from '../assets/wizard-hat-logo.svg';
 import MTGLogo from '../assets/mtg-logo.svg';
 import OWLogo from '../assets/ow-logo.svg';
+import DLLogo from '../assets/dl-logo.svg';
 
 const gameButtonData = [
   {
     logo: OWLogo.src,
-    path: "/overwatch?queue=0&role=Support&region=Americas&input=PC&rank=All&map=all-maps",
+    path: "/overwatch",
     name: "Overwatch",
     nameSecondLine: "",
+    active: true
+  },
+  {
+    logo: DLLogo.src,
+    path: "/deadlock",
+    name: "Deadlock",
+    nameSecondLIne: "",
     active: true
   },
   {
@@ -26,20 +34,23 @@ const gameButtonData = [
 
 <Layout title="metatrack.ing" logo={Logo.src}>
   <main>
-    <GameButton client:load 
-      logo={gameButtonData[0].logo} 
-      path={gameButtonData[0].path} 
-      name={gameButtonData[0].name} 
-      namesl={gameButtonData[0].nameSecondLine}
-      active={gameButtonData[0].active}
-    />
-    <GameButton client:load 
+    {gameButtonData.map((game) => (
+      <GameButton client:load 
+        logo={game.logo} 
+        path={game.path} 
+        name={game.name} 
+        namesl={game.nameSecondLine}
+        active={game.active}
+      />
+    ))}
+
+    <!-- <GameButton client:load 
       logo={gameButtonData[1].logo} 
       path={gameButtonData[1].path} 
       name={gameButtonData[1].name} 
       namesl={gameButtonData[1].nameSecondLine}
       active={gameButtonData[1].active}
-    />
+    /> -->
 
   </main>
 </Layout>
@@ -49,8 +60,8 @@ const gameButtonData = [
     padding: 2rem;
     max-width: 800px;
     margin: 50px auto 0 auto;
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 100px;
   }
 
@@ -63,7 +74,7 @@ const gameButtonData = [
 
   @media (max-width: 480px) {
     main {
-      flex-direction: column;
+      grid-template-columns: 1fr;
     }
   }
   
