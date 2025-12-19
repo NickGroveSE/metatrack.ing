@@ -1,6 +1,6 @@
 <template>
-
     <div class="hero-list-wrapper">
+
         <div class="search-container">
             <input 
                 type="text" 
@@ -8,7 +8,173 @@
                 placeholder="Search heroes..."
                 class="search-input"
             />
-            <button class="add-combo-btn" @click="dispatchCombo" title="Confirm Combo">
+            <button :class="`hero-list-btn ${filtersModalOpen ? 'open' : ''}`"  @click="openModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+            </button>
+            <div v-if="filtersModalOpen" class="filters-container">
+              <div class="filter-group">
+                <label class="filter-label">Timeframe</label>
+                <select v-model="filters.timeframe" class="filter-select">
+                  <option value="24h">Last 24 Hours</option>
+                  <option value="48h">Last 48 Hours</option>
+                  <option value="168h">Last 7 Days</option>
+                  <option value="336h">Last 2 Weeks</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label class="filter-label">Min Rank</label>
+                <select v-model="filters.minBadge" class="filter-select">
+                  <option value="0">Obscurus</option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(10+badgeNumber).toString()" 
+                    :key="(10+badgeNumber).toString()">
+                      {{ "Initiate " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(20+badgeNumber).toString()" 
+                    :key="(20+badgeNumber).toString()">
+                      {{ "Seeker " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(30+badgeNumber).toString()" 
+                    :key="(30+badgeNumber).toString()">
+                      {{ "Alchemist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(40+badgeNumber).toString()" 
+                    :key="(40+badgeNumber).toString()">
+                      {{ "Arcanist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(50+badgeNumber).toString()" 
+                    :key="(50+badgeNumber).toString()">
+                      {{ "Ritualist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(60+badgeNumber).toString()" 
+                    :key="(60+badgeNumber).toString()">
+                      {{ "Emissary " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(70+badgeNumber).toString()" 
+                    :key="(70+badgeNumber).toString()">
+                      {{ "Archon " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(80+badgeNumber).toString()" 
+                    :key="(80+badgeNumber).toString()">
+                      {{ "Oracle " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(90+badgeNumber).toString()" 
+                    :key="(90+badgeNumber).toString()">
+                      {{ "Phantom " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(100+badgeNumber).toString()" 
+                    :key="(100+badgeNumber).toString()">
+                      {{ "Ascendant " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(110+badgeNumber).toString()" 
+                    :key="(110+badgeNumber).toString()">
+                      {{ "Eternus " + badgeNumber.toString() }}
+                  </option>
+                </select>
+              </div>
+              
+              <div class="filter-group">
+                <label class="filter-label">Max Rank</label>
+                <select v-model="filters.maxBadge" class="filter-select">
+                  <option value="0">Obscurus</option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(10+badgeNumber).toString()" 
+                    :key="(10+badgeNumber).toString()">
+                      {{ "Initiate " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(20+badgeNumber).toString()" 
+                    :key="(20+badgeNumber).toString()">
+                      {{ "Seeker " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(30+badgeNumber).toString()" 
+                    :key="(30+badgeNumber).toString()">
+                      {{ "Alchemist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(40+badgeNumber).toString()" 
+                    :key="(40+badgeNumber).toString()">
+                      {{ "Arcanist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(50+badgeNumber).toString()" 
+                    :key="(50+badgeNumber).toString()">
+                      {{ "Ritualist " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(60+badgeNumber).toString()" 
+                    :key="(60+badgeNumber).toString()">
+                      {{ "Emissary " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(70+badgeNumber).toString()" 
+                    :key="(70+badgeNumber).toString()">
+                      {{ "Archon " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(80+badgeNumber).toString()" 
+                    :key="(80+badgeNumber).toString()">
+                      {{ "Oracle " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(90+badgeNumber).toString()" 
+                    :key="(90+badgeNumber).toString()">
+                      {{ "Phantom " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(100+badgeNumber).toString()" 
+                    :key="(100+badgeNumber).toString()">
+                      {{ "Ascendant " + badgeNumber.toString() }}
+                  </option>
+                  <option 
+                    v-for="badgeNumber in badgeNumbering" 
+                    :value="(110+badgeNumber).toString()" 
+                    :key="(110+badgeNumber).toString()">
+                      {{ "Eternus " + badgeNumber.toString() }}
+                  </option>
+                </select>
+              </div>
+
+              <button @click="applyFilters" class="apply-filters-btn">
+                Apply Filters
+              </button>
+            </div>
+            <button class="hero-list-btn" @click="dispatchCombo" title="Add a Combo">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -34,7 +200,6 @@
                     type="checkbox"
                     v-else
                     :checked="true"
-                    :disabled="true"
                 />
                 <img 
                     v-if="item.Heroes.length === 1"
@@ -65,13 +230,21 @@ export default {
     setCheckedHeroes: {
       type: Array,
       default: () => []
-    }
+    },
+    queryParams: Object
   },
   data() {
     return {
       data: this.heroData,
       checkedHeroes: [...this.setCheckedHeroes],
-      searchQuery: ''
+      searchQuery: '', 
+      filtersModalOpen: false,
+      filters: {
+        timeframe: this.queryParams.timeframe,
+        minBadge: this.queryParams.minBadge,
+        maxBadge: this.queryParams.maxBadge
+      },
+      badgeNumbering: [1,2,3,4,5,6]
     };
   },
   mounted() {
@@ -100,7 +273,7 @@ export default {
         if (aIsCombo && !bIsCombo) return -1;
         if (!aIsCombo && bIsCombo) return 1;
         
-        // Both combos - sort alphabetically by combo number
+        // Both combos - sort by combo number
         if (aIsCombo && bIsCombo) {
           return this.getComboNumber(a) - this.getComboNumber(b);
         }
@@ -119,14 +292,29 @@ export default {
   },
   methods: {
     dispatchCombo() {
-      const event = new CustomEvent('combo-added', {
+      alert("Add Hero Combo or Matchup In Development")
+      // const event = new CustomEvent('combo-added', {
+      //   detail: {
+      //     checkedHeroes: this.checkedHeroes,
+      //     combo: "2-11"
+      //   },
+      //   bubbles: true
+      // });
+      // this.$el.dispatchEvent(event);
+    },
+    applyFilters() {
+      this.filtersModalOpen = false
+      const event = new CustomEvent('apply-filters', {
         detail: {
-          checkedHeroes: this.checkedHeroes,
-          combo: "2-11"
+          filters: this.filters,
+          checkedHeroes: this.checkedHeroes
         },
         bubbles: true
-      });
-      this.$el.dispatchEvent(event);
+      })
+      this.$el.dispatchEvent(event)
+    },
+    openModal() {
+      this.filtersModalOpen = !this.filtersModalOpen
     },
     getItemKey(item) {
       if (item.Heroes.length === 1) {
@@ -215,6 +403,7 @@ export default {
     margin-bottom: 0.75rem;
     display: flex;
     gap: 0.5rem;
+    position: relative;
 }
 
 .search-input {
@@ -227,9 +416,10 @@ export default {
     font-size: 0.95rem;
     transition: all 0.2s;
     box-sizing: border-box;
+    flex-basis: 60%;
 }
 
-.add-combo-btn {
+.hero-list-btn {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -243,14 +433,21 @@ export default {
     min-width: 48px;
 }
 
-.add-combo-btn:hover {
+.hero-list-btn:hover {
     background-color: rgba(251, 191, 36, 0.2);
     border-color: rgba(251, 191, 36, 0.6);
     color: rgb(251, 191, 36);
     transform: scale(1.05);
 }
 
-.add-combo-btn:active {
+.open {
+    background-color: rgba(251, 191, 36, 0.2);
+    border-color: rgba(251, 191, 36, 0.6);
+    color: rgb(251, 191, 36);
+    transform: scale(1.05);
+}
+
+.hero-list-btn:active {
     transform: scale(0.95);
 }
 
@@ -326,6 +523,102 @@ export default {
         1px -1px 0 rgba(17,24,39, 128), 
         -1px 1px 0 rgba(17,24,39, 128), 
         1px 1px 0 rgba(17,24,39, 128);
+}
+
+.filters-container {
+  background: #111827;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(31,41,55, 0.7);
+  width: 300px;
+  float: right;
+  position: absolute;
+  z-index: 1;
+  top: 50px; 
+}
+
+/* Filter Group Styling */
+.filter-group {
+  margin-bottom: 10px;
+}
+
+.filter-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(249, 168, 38, 0.3);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23f9a826' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+}
+
+.filter-select:hover {
+  border-color: rgba(249, 168, 38, 0.6);
+  box-shadow: 0 0 15px rgba(249, 168, 38, 0.2);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #f9a826;
+  box-shadow: 0 0 20px rgba(249, 168, 38, 0.3);
+}
+
+.filter-select optgroup {
+  background: #1a1a2e;
+  color: #06b6d4;
+  padding: 10px;
+}
+
+.filter-select option {
+  background: #1a1a2e;
+  color: #ffffff;
+  padding: 10px;
+}
+
+.apply-filters-btn {
+  width: 100%;
+  padding: 14px 24px;
+  margin-top: 12px;
+  background: linear-gradient(135deg, #f9a826 0%, #06b6d4 100%);
+  border: none;
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(249, 168, 38, 0.4);
+}
+
+.apply-filters-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(249, 168, 38, 0.6);
+}
+
+.apply-filters-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(249, 168, 38, 0.4);
 }
 
 </style>

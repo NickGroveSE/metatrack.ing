@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"sort"
 
 	// "time"
 
@@ -66,6 +67,8 @@ var DLHeroColors = map[int32]string{
 
 func DLSCHandler(minUnixTS int64, maxUnixTS int64, minAvgBadge int32, maxAvgBadge int32, minHeroMatches int64, minHeroMatchesTotal int64) []models.DLHeroEntity {
 
+	var heroEntities []models.DLHeroEntity
+
 	assetsConfig := deadlock_assets_api.NewConfiguration()
 	assetsAPIClient := deadlock_assets_api.NewAPIClient(assetsConfig)
 
@@ -81,7 +84,9 @@ func DLSCHandler(minUnixTS int64, maxUnixTS int64, minAvgBadge int32, maxAvgBadg
 
 	idLookup := activeHeroes(assetsAPIClient)
 
-	return heroStats(gameAPIClient, idLookup, minUnixTS, maxUnixTS, minAvgBadge, maxAvgBadge, minHeroMatches, minHeroMatchesTotal)
+	heroEntities = heroStats(gameAPIClient, idLookup, minUnixTS, maxUnixTS, minAvgBadge, maxAvgBadge, minHeroMatches, minHeroMatchesTotal)
+
+	return heroEntities
 
 }
 
@@ -145,6 +150,10 @@ func heroStats(gameClient *deadlock_game_api.APIClient, activeLookup map[int32]m
 		divisionByNumOfPlayersPerMatch := float32(runningMatchSum) / float32(12)
 		heroEntities[i].Stats.PickRate = roundFloat32((float32(heroEntities[i].Stats.Matches)/divisionByNumOfPlayersPerMatch)*100, 2)
 	}
+
+	sort.Slice(heroEntities, func(i, j int) bool {
+		return heroEntities[i].Stats.PickRate > heroEntities[j].Stats.PickRate
+	})
 
 	return heroEntities
 

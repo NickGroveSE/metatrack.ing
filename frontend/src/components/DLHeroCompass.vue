@@ -117,6 +117,7 @@
             v-if="tooltip.data.Heroes.length === 1"
             class="tooltip-image"
             :src="tooltip.data.Heroes[0].Image"
+            :style="`filter: drop-shadow(1px 0 0 ${tooltip.data.Heroes[0].Color}) drop-shadow(0 1px 0 ${tooltip.data.Heroes[0].Color}) drop-shadow(-1px 0 0 ${tooltip.data.Heroes[0].Color}) drop-shadow(0 -1px 0 ${tooltip.data.Heroes[0].Color});`"
         />
         <template v-else>
             <img 
@@ -127,6 +128,7 @@
             />
         </template>
         <div class="tooltip-name">{{ getDisplayName(tooltip.data) }}</div>
+        <div class="tooltip-stat">Matches: {{ tooltip.data.Stats.Matches }}</div>
         <div class="tooltip-stat">Pick Rate: {{ tooltip.data.Stats.PickRate }}%</div>
         <div class="tooltip-stat">Win Rate: {{ tooltip.data.Stats.WinRate }}%</div>
       </div>

@@ -220,7 +220,12 @@ func dlSCDataHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error converting minHeroMatchesTotal string to int64:", err)
 		return
 	}
-	// combos := queryParams.Get("combos")
+	// comboInt32s := [][]int32{}
+	// comboStrings := strings.Split(queryParams.Get("combos"), "~")
+
+	// for _, comboString := range comboStrings {
+	// 	comboInt32s = append(comboInt32s, ExtractCombo(comboString))
+	// }
 
 	var data []models.DLHeroEntity = services.DLSCHandler(minUnixTS, maxUnixTS, int32(minBadge), int32(maxBadge), minHeroMatches, minHeroMatchesTotal)
 
@@ -281,17 +286,8 @@ func dlComboAdditionDataHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Error converting minHeroMatchesTotal string to int64:", err)
 		return
 	}
-	comboStrings := strings.Split(queryParams.Get("combo"), "-")
-	comboInt32 := make([]int32, len(comboStrings))
 
-	for i, s := range comboStrings {
-		parsedInt64, err := strconv.ParseInt(s, 10, 32)
-		if err != nil {
-			fmt.Printf("Error converting combo string '%s' to int32: %v\n", s, err)
-			continue
-		}
-		comboInt32[i] = int32(parsedInt64)
-	}
+	comboInt32 := ExtractCombo(queryParams.Get("combo"))
 
 	var data models.DLHeroEntity = services.DLComboAdditionHandler(minUnixTS, maxUnixTS, int32(minBadge), int32(maxBadge), int32(minMatchesTotal), comboInt32)
 
@@ -309,6 +305,22 @@ func dlComboAdditionDataHandler(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error encoding response: %v", err)
 	}
+}
+
+func ExtractCombo(comboString string) []int32 {
+	comboStrings := strings.Split(comboString, "-")
+	comboInt32 := make([]int32, len(comboStrings))
+
+	for i, s := range comboStrings {
+		parsedInt64, err := strconv.ParseInt(s, 10, 32)
+		if err != nil {
+			fmt.Printf("Error converting combo string '%s' to int32: %v\n", s, err)
+			continue
+		}
+		comboInt32[i] = int32(parsedInt64)
+	}
+
+	return comboInt32
 }
 
 func main() {

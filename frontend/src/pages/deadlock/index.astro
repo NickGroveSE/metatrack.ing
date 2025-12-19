@@ -1,7 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import HeroCompass from '../../components/DLHeroCompass.vue';
-import CompassFilters from '../../components/CompassFilters.vue'
+// import CompassFilters from '../../components/OWCompassFilters.vue'
 import HeroList from '../../components/DLHeroList.vue'
 
 import DLLogo from '../../assets/dl-logo.svg';
@@ -11,24 +11,16 @@ const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
 console.log('Using backend URL:', backendUrl);
 
 const { searchParams } = Astro.url;
-
-const nowInMilliseconds = Date.now()
-const weekInMilliseconds = 168 * 60 * 60 * 1000 // 168 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
-
-const weekAgoInMilliseconds = nowInMilliseconds - weekInMilliseconds
-
-const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
-const unixTimestampAWeekAgo = Math.floor(weekAgoInMilliseconds / 1000)
+    // "min-unix-ts": unixTimestampAWeekAgo.toString(),
+    // "max-unix-ts": unixTimestampNow.toString(),
 
 const defaults = {
-    "min-unix-ts": unixTimestampAWeekAgo.toString(),
-    "max-unix-ts": unixTimestampNow.toString(),
+    "timeframe": "168h",
     "min-badge": "91",
     "max-badge": "116",
     "min-hero-matches": "0",
     "min-hero-matches-total": "0",
     "heroes": "",
-    "combos": "",
 }
 
 const finalParams = new URLSearchParams()
@@ -37,7 +29,51 @@ Object.entries(defaults).forEach(([key, defaultValue]) => {
 })
 
 var response = new Response
+const timeframe = finalParams.get("timeframe")
+finalParams.delete("timeframe")
+const timeframeHours = Number(timeframe?.replace(/h/g, ""))
+const createTimeStamps = (tfh: number) => {
+  const nowInMilliseconds = Date.now()
+
+  const pastInMilliseconds = tfh * 60 * 60 * 1000
+
+  const pastAgoInMilliseconds = nowInMilliseconds - pastInMilliseconds
+
+  const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
+  const unixTimestampPast = Math.floor(pastAgoInMilliseconds / 1000)
+
+  return [unixTimestampNow, unixTimestampPast]
+}
+
 try {
+  
+  if (timeframe == "336h") {
+    const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+    finalParams.set("min-unix-ts", minUnix.toString())
+    finalParams.set("max-unix-ts", maxUnix.toString())
+  } else if (timeframe == "168h") {
+    const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+    finalParams.set("min-unix-ts", minUnix.toString())
+    finalParams.set("max-unix-ts", maxUnix.toString())
+  } else if (timeframe == "48h") {
+    const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+    finalParams.set("min-unix-ts", minUnix.toString())
+    finalParams.set("max-unix-ts", maxUnix.toString())
+  } else if (timeframe == "24h") {
+    const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+    finalParams.set("min-unix-ts", minUnix.toString())
+    finalParams.set("max-unix-ts", maxUnix.toString())
+  } else {
+    const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+    finalParams.set("min-unix-ts", minUnix.toString())
+    finalParams.set("max-unix-ts", maxUnix.toString())
+  }
+
   response = await fetch(`${backendUrl}/deadlock?${finalParams.toString()}`);
   
 } catch(error){
@@ -47,8 +83,14 @@ const data = await response.json();
 var checkedHeroes: any
 var visualizedHeroes: any
 
+const paramsForFilters = {
+  timeframe: timeframe,
+  minBadge: finalParams.get("min-badge"),
+  maxBadge: finalParams.get("max-badge")
+}
+
 if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
-  visualizedHeroes = data.data.slice(0, 5);
+  visualizedHeroes = data.data.slice(0, 10);
   checkedHeroes = visualizedHeroes.map((hero: { Heroes: { ID: any; }[]; }) => hero.Heroes[0].ID);
 } else {
   console.log("Assigning Checked Heroes...")
@@ -68,6 +110,7 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
       id="hero-list"
       heroData={data.data} 
       setCheckedHeroes={checkedHeroes}
+      queryParams={paramsForFilters}
       client:load
     />
     <HeroCompass 
@@ -102,13 +145,14 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
   const heroList = document.getElementById('hero-list');
   const compass = document.getElementById('compass');
   const main = document.querySelector('main');
-  const allHeroData = JSON.parse(main?.dataset.allHeroes || '[]');
+  
 
   heroList?.addEventListener('checked-heroes-changed', (event) => {
     const customEvent = event as CustomEvent;
     const checkedIds = customEvent.detail;
     const url = new URL(window.location.href);
     const searchParams = new URLSearchParams(url.search);
+    const allHeroData = JSON.parse(main?.dataset.allHeroes || '[]');
 
     console.log('Checked heroes changed:', checkedIds);
 
@@ -119,6 +163,8 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
     } else {
       searchParams.append("heroes", heroesParam)
     }
+
+    console.log(allHeroData)
     
     // Filter to get only checked heroes
     const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
@@ -134,70 +180,182 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
     compass?.dispatchEvent(updateEvent);
   });
 
-  heroList?.addEventListener('combo-added', async (event) => {
+  heroList?.addEventListener('apply-filters', async (event) => {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     const customEvent = event as CustomEvent;
-    const checkedHeroes = customEvent.detail.checkedHeroes
-    const combosParam = customEvent.detail.combo;
+    const filters = customEvent.detail.filters;
+    const checkedIds = customEvent.detail.checkedHeroes
     const url = new URL(window.location.href);
     const searchParams = new URLSearchParams(url.search);
+    const timeframeHours = Number(filters.timeframe?.replace(/h/g, ""))
 
-    const nowInMilliseconds = Date.now()
-    const weekInMilliseconds = 168 * 60 * 60 * 1000 // 168 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+    console.log('Applying Filters:', filters);
 
-    const weekAgoInMilliseconds = nowInMilliseconds - weekInMilliseconds
-
-    const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
-    const unixTimestampAWeekAgo = Math.floor(weekAgoInMilliseconds / 1000)
-
-    const requestParams = {
-        "min-unix-ts": unixTimestampAWeekAgo.toString(),
-        "max-unix-ts": unixTimestampNow.toString(),
-        "min-badge": "91",
-        "max-badge": "116",
-        "min-hero-matches-total": "0",
-        "combo": combosParam,
-    }
-
-    const newParams = new URLSearchParams()
-    Object.entries(requestParams).forEach(([key, value]) => {
-      newParams.set(key, value)
+    const requestParams = new URLSearchParams({
+        "min-unix-ts": "",
+        "max-unix-ts": "",
+        "min-badge": filters.minBadge,
+        "max-badge": filters.maxBadge,
+        "min-hero-matches": "0",
+        "min-hero-matches-total": "0"
     })
 
-    if (searchParams.has("combos")) {
-      const allCombos = `${searchParams.get("combos")}~${combosParam}`
-      searchParams.set("combos", allCombos)
+    const createTimeStamps = (tfh: number) => {
+      const nowInMilliseconds = Date.now()
+
+      const pastInMilliseconds = tfh * 60 * 60 * 1000
+
+      const pastAgoInMilliseconds = nowInMilliseconds - pastInMilliseconds
+
+      const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
+      const unixTimestampPast = Math.floor(pastAgoInMilliseconds / 1000)
+
+      return [unixTimestampNow, unixTimestampPast]
+    }
+
+    if (filters.timeframe == "336h") {
+      const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+      requestParams.set("min-unix-ts", minUnix.toString())
+      requestParams.set("max-unix-ts", maxUnix.toString())
+    } else if (filters.timeframe == "168h") {
+      const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+      requestParams.set("min-unix-ts", minUnix.toString())
+      requestParams.set("max-unix-ts", maxUnix.toString())
+    } else if (filters.timeframe == "48h") {
+      const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+      requestParams.set("min-unix-ts", minUnix.toString())
+      requestParams.set("max-unix-ts", maxUnix.toString())
+    } else if (filters.timeframe == "24h") {
+      const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+      requestParams.set("min-unix-ts", minUnix.toString())
+      requestParams.set("max-unix-ts", maxUnix.toString())
     } else {
-      searchParams.append("combos", combosParam)
+      const [maxUnix, minUnix] = createTimeStamps(timeframeHours)
+
+      requestParams.set("min-unix-ts", minUnix.toString())
+      requestParams.set("max-unix-ts", maxUnix.toString())
     }
 
     var response = new Response()
     try {
-      response = await fetch(`${backendUrl}/deadlock/combo?${newParams.toString()}`);
+      response = await fetch(`${backendUrl}/deadlock?${requestParams.toString()}`);
       
     } catch(error){
       console.log(error)
     }
     const data = await response.json();
 
-    const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
-      checkedHeroes.includes(hero.Heroes[0].ID)
+    console.log(data)
+
+    const filteredHeroes = data.data.filter((hero: { Heroes: { ID: any; }[]; }) => 
+      checkedIds.includes(hero.Heroes[0].ID)
     );
 
-    const updatedHeroes = [...filteredHeroes, data.data];
-    const updateAllHeroes = [...allHeroData, data.data];
+    // const updatedHeroes = [...filteredHeroes, data.data];
+    // const updateAllHeroes = [...allHeroData, data.data];
 
     const updateCompass = new CustomEvent('hero-data-updated', { 
-      detail: updatedHeroes
+      detail: filteredHeroes
     });
 
-    const updateList = new CustomEvent('hero-list-updated', {
-      detail: updateAllHeroes
+    // const updateList = new CustomEvent('hero-list-updated', {
+    //   detail: updateAllHeroes
+    // })
+
+    // const heroesParam = checkedIds.join("~")
+
+    // if (searchParams.has("heroes")) {
+    //   searchParams.set("heroes", heroesParam)
+    // } else {
+    //   searchParams.append("heroes", heroesParam)
+    // }
+
+    Object.keys(filters).forEach(key => {
+      const value = filters[key]
+      if (searchParams.has(key)) {
+        searchParams.set(key, value)
+      } else {
+        searchParams.append(key, value)
+      }
     })
 
     window.history.pushState({}, '', `${url.pathname}?${searchParams.toString()}`);
     compass?.dispatchEvent(updateCompass);
-    heroList.dispatchEvent(updateList);
+    if (!main) {
+      console.error('Main element not found');
+      return;
+    }
+    main.dataset.allHeroes = JSON.stringify(data.data);
   })
+
+  // heroList?.addEventListener('combo-added', async (event) => {
+  //   const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+  //   const customEvent = event as CustomEvent;
+  //   const checkedHeroes = customEvent.detail.checkedHeroes
+  //   const combosParam = customEvent.detail.combo;
+  //   const url = new URL(window.location.href);
+  //   const searchParams = new URLSearchParams(url.search);
+
+  //   const nowInMilliseconds = Date.now()
+  //   const weekInMilliseconds = 168 * 60 * 60 * 1000 // 168 hours * 60 minutes/hour * 60 seconds/minute * 1000 milliseconds/second
+
+  //   const weekAgoInMilliseconds = nowInMilliseconds - weekInMilliseconds
+
+  //   const unixTimestampNow = Math.floor(nowInMilliseconds / 1000)
+  //   const unixTimestampAWeekAgo = Math.floor(weekAgoInMilliseconds / 1000)
+
+  //   const requestParams = {
+  //       "min-unix-ts": unixTimestampAWeekAgo.toString(),
+  //       "max-unix-ts": unixTimestampNow.toString(),
+  //       "min-badge": "91",
+  //       "max-badge": "116",
+  //       "min-hero-matches-total": "0",
+  //       "combo": combosParam,
+  //   }
+
+  //   const newParams = new URLSearchParams()
+  //   Object.entries(requestParams).forEach(([key, value]) => {
+  //     newParams.set(key, value)
+  //   })
+
+  //   if (searchParams.has("combos")) {
+  //     const allCombos = `${searchParams.get("combos")}~${combosParam}`
+  //     searchParams.set("combos", allCombos)
+  //   } else {
+  //     searchParams.append("combos", combosParam)
+  //   }
+
+  //   var response = new Response()
+  //   try {
+  //     response = await fetch(`${backendUrl}/deadlock/combo?${newParams.toString()}`);
+      
+  //   } catch(error){
+  //     console.log(error)
+  //   }
+  //   const data = await response.json();
+
+  //   const filteredHeroes = allHeroData.filter((hero: { Heroes: { ID: any; }[]; }) => 
+  //     checkedHeroes.includes(hero.Heroes[0].ID)
+  //   );
+
+  //   const updatedHeroes = [...filteredHeroes, data.data];
+  //   const updateAllHeroes = [...allHeroData, data.data];
+
+  //   const updateCompass = new CustomEvent('hero-data-updated', { 
+  //     detail: updatedHeroes
+  //   });
+
+  //   const updateList = new CustomEvent('hero-list-updated', {
+  //     detail: updateAllHeroes
+  //   })
+
+  //   window.history.pushState({}, '', `${url.pathname}?${searchParams.toString()}`);
+  //   compass?.dispatchEvent(updateCompass);
+  //   heroList.dispatchEvent(updateList);
+  // })
 
 </script>
