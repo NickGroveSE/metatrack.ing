@@ -181,7 +181,7 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
   });
 
   heroList?.addEventListener('apply-filters', async (event) => {
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
+    const backendUrl = window.location.hostname.includes('.ing') ? 'https://api.metatrack.ing' : 'http://localhost:8080';
     const customEvent = event as CustomEvent;
     const filters = customEvent.detail.filters;
     const checkedIds = customEvent.detail.checkedHeroes
