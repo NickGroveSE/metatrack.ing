@@ -1,3 +1,14 @@
+### TO DO
+- Make Deadlock index responsive
+- Make Deadlock components responsive
+- Select All Heroes option
+- Both OW & DL - Change tooltip position at bottom and right side of the screen
+- Create better timeframe options
+- Determine how Hero Combinations and Matchups will be represented, visual indictation and statistical representation
+- Restructure Hero Entity model for Combinations and/or matchups
+- Enforce restructuring across the Frontend
+- 
+
 ### Structure
 
 Frontend will include a "Single Hero & Combos" tab & a "Matchups" tab

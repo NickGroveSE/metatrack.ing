@@ -4,6 +4,7 @@ import HeroCompass from '../../components/OWHeroCompass.vue';
 import CompassFilters from '../../components/OWCompassFilters.vue'
 
 import OWLogo from '../../assets/ow-logo.svg';
+import type { loadRenderers } from 'astro:container';
 
 // Use process.env for server-side runtime variable
 const backendUrl = process.env.BACKEND_URL || 'http://backend:8080';
@@ -53,10 +54,19 @@ const params = {
       Filters
     </button>
     
-    <HeroCompass class="container" id="compass" heroData={data.data} client:load/>
+    <HeroCompass 
+      class="container" 
+      id="compass" 
+      heroData={data.data} 
+      client:load
+    />
     
     <div id="filters-container" class="container">
-      <CompassFilters id="filters" queryParams={params} client:load/>
+      <CompassFilters 
+        id="filters" 
+        queryParams={params} 
+        client:load
+      />
     </div>
 
     <div id="filters-modal" class="modal">
@@ -71,7 +81,11 @@ const params = {
           </button>
         </div>
         <div class="modal-body">
-          <CompassFilters id="filters-modal-content" queryParams={params} client:load/>
+          <CompassFilters 
+            id="filters-modal-content"
+            queryParams={params} 
+            client:load
+          />
         </div>
       </div>
     </div>
@@ -297,7 +311,7 @@ const params = {
 
   .promo-icon svg {
     color: #111827;
-  }*/
+  }
 
   @keyframes pulse {
     0%, 100% {
@@ -306,9 +320,9 @@ const params = {
     50% {
       box-shadow: 0 0 0 20px rgba(251, 191, 36, 0);
     }
-  }
+  } 
 
-  /*.promo-title {
+  .promo-title {
     font-size: 1.75rem;
     font-weight: 700;
     color: #fbbf24;
@@ -487,7 +501,7 @@ const params = {
   // // Initialize promo popup
   // initPromoPopup();
 
-  // Modal functionality
+  // Modal Functionality
   const filtersButton = document.getElementById('filters-button');
   const modal = document.getElementById('filters-modal');
   const modalOverlay = document.getElementById('modal-overlay');
