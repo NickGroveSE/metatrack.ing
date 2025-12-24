@@ -266,6 +266,9 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
 
   .modal-overlay {
     position: fixed;
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center;     /* Centers vertically */
     top: 0;
     left: 0;
     width: 100%;
@@ -275,6 +278,8 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 1000;
+    font-size: 32px;
+    color: white;
   }
 
   .modal-overlay.active {
@@ -451,6 +456,11 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
         requestParams.set("max-unix-ts", maxUnix.toString())
       }
 
+      // Close modal after applying filters on mobile
+      if (window.innerWidth <= 980) {
+        closeModal();
+      }
+
       var response = new Response()
       try {
         response = await fetch(`${backendUrl}/deadlock?${requestParams.toString()}`);
@@ -503,10 +513,7 @@ if (!finalParams.has("heroes") || finalParams.get("heroes") == "") {
 
       main.dataset.allHeroes = JSON.stringify(data.data);
 
-      // Close modal after applying filters on mobile
-      if (window.innerWidth <= 980) {
-        closeModal();
-      }
+
 
       // Params Dispatch needed
       // main.dataset.params = JSON.stringify({
