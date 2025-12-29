@@ -1,7 +1,8 @@
 ### TO DO
-- Make Deadlock index responsive
-- Make Deadlock components responsive
+- Make Deadlock index responsive (done)
+- Make Deadlock components responsive (done)
 - Select All Heroes option
+- Create Regression Lines for DL & OW
 - Both OW & DL - Change tooltip position at bottom and right side of the screen
 - Create better timeframe options
 - Determine how Hero Combinations and Matchups will be represented, visual indictation and statistical representation
