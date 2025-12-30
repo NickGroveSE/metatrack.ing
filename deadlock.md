@@ -8,7 +8,6 @@
 - Determine how Hero Combinations and Matchups will be represented, visual indictation and statistical representation
 - Restructure Hero Entity model for Combinations and/or matchups
 - Enforce restructuring across the Frontend
-- 
 
 ### Structure
 

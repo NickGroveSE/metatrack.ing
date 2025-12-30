@@ -181,6 +181,8 @@
                 </svg>
             </button>
         </div>
+
+        <div :class="`select-all-button ${checkedHeroes.length == data.length ? 'selected' : ''}`" @click="dispatchSelectAll">Select All Heroes</div>
         
         <div class="checkbox-container">
             <label 
@@ -301,6 +303,9 @@ export default {
       //   bubbles: true
       // });
       // this.$el.dispatchEvent(event);
+    },
+    dispatchSelectAll() {
+      this.checkedHeroes = this.data.map(hero => hero.Heroes[0].ID)
     },
     applyFilters() {
       this.filtersModalOpen = false
@@ -433,6 +438,26 @@ export default {
     min-width: 48px;
 }
 
+.select-all-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    border-radius: 8px;
+    border: 1px solid rgba(31,41,55, 0.7);
+    background-color: rgba(17,24,39, 0.5);
+    color: lightslategray;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.selected {
+    background-color: rgba(251, 191, 36, 0.2);
+    border-color: rgba(251, 191, 36, 0.6);
+    color: rgb(251, 191, 36);
+    transform: scale(1.05);
+} 
+
 .hero-list-btn:hover {
     background-color: rgba(251, 191, 36, 0.2);
     border-color: rgba(251, 191, 36, 0.6);
@@ -462,7 +487,7 @@ export default {
 }
 
 .checkbox-container {
-    max-height: 450px;
+    max-height: 420px;
     overflow-y: auto;
     padding: 1rem;
     border-radius: 12px;
